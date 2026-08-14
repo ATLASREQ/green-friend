@@ -1199,15 +1199,15 @@ function renderCatalog(){
   }
   $('#catGrid').innerHTML=list.map((p,idx)=>{
     const sid=p.custom?'cus:'+p.id:p.id;
-    const inHome=state.mine.some(m=>m.sid===sid);
+    const homeCount=state.mine.filter(m=>m.sid===sid).length;
     return `<article class="ccard reveal" data-open="${sid}" style="transition-delay:${(idx%8)*40}ms">
       ${p.custom?`<div class="c-tools"><button data-cedit="${p.id}" title="Редактировать">✏️</button><button data-cdel="${p.id}" title="Удалить">🗑</button></div>`:''}
       <div class="cemoji">${p.emoji}</div>
       <div><div class="cname">${esc(p.name)}</div><div class="platin">${esc(p.latin||'своя карточка')}</div></div>
       <div class="dots">${dots(p.diff)}<span class="dlabel">${DLAB[p.diff]}</span></div>
       <div class="cmeta">💧 раз в ${p.water} дн. · 🧪 раз в ${p.feed} дн.<br>🪴 раз в ${p.repot} мес.${p.light?` · ${esc(p.light.toLowerCase())}`:''}</div>
-      <div class="ctags">${p.custom?'<span class="tg-tag mine-tag">🛠 своя</span>':''}${(p.tags||[]).map(t=>`<span class="tg-tag">${TAGS[t]}</span>`).join('')}${p.toxic?'<span class="tg-tag tox">⚠ токсично</span>':''}</div>
-      <button class="addbtn" data-add="${sid}" ${inHome?'disabled':''}>${inHome?'✓ Уже дома':'Взять домой +'}</button>
+      <div class="ctags">${p.custom?'<span class="tg-tag mine-tag">🛠 своя</span>':''}${homeCount?`<span class="tg-tag mine-tag">дома: ${homeCount}</span>`:''}${(p.tags||[]).map(t=>`<span class="tg-tag">${TAGS[t]}</span>`).join('')}${p.toxic?'<span class="tg-tag tox">⚠ токсично</span>':''}</div>
+      <button class="addbtn" data-add="${sid}">Взять домой +</button>
     </article>`;
   }).join('');
   observeReveals();
@@ -1231,7 +1231,6 @@ $('#catGrid').addEventListener('click',e=>{
 });
 function openModal(sid){
   const p=speciesOf(sid);if(!p)return;
-  const inHome=state.mine.some(m=>m.sid===sid);
   $('#mEmoji').textContent=p.emoji;
   $('#mName').textContent=p.name;
   $('#mLatin').textContent=p.latin||'собственная карточка Green Friend';
@@ -1247,8 +1246,8 @@ function openModal(sid){
   ].map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join('');
   $('#mTip').textContent='💡 '+(p.tip||'Наблюдайте за растением — оно само подскажет, чего хочет.');
   const btn=$('#mAdd');
-  btn.dataset.add=sid;btn.disabled=inHome;
-  btn.textContent=inHome?'✓ Уже дома':'Взять домой +';
+  btn.dataset.add=sid;btn.disabled=false;
+  btn.textContent='Взять домой +';
   $('#modal').classList.add('show');
 }
 $('#mAdd').addEventListener('click',e=>{
