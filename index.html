@@ -347,7 +347,7 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
       <div class="hero-copy reveal in">
         <div class="eyebrow">🪴 Green Friend <span class="sep">✦</span> напоминания в Telegram 24/7 <span class="sep">✦</span> <span id="heroDate"></span></div>
         <h1>Поливай <span class="hl">вовремя</span>.<br>Удобряй <span class="out">с умом</span>.</h1>
-        <p class="lede">Выбери растения, которые живут у тебя дома — из 55 популярных видов или собери свою карточку. Green Friend составит план ухода и напомнит в Telegram про полив, подкормку и пересадку — даже когда вкладка закрыта.</p>
+        <p class="lede">Выбери растения, которые живут у тебя дома — из 55 популярных видов или собери свою карточку. Green Friend составит план ухода и напомнит в Telegram про полив, подкормку и пересадку — даже когда вкладка закрыта. Подкормка — только в сезон роста каждого растения.</p>
         <div class="cta">
           <a class="btn" href="#catalog">Выбрать растения ↓</a>
           <a class="btn-ghost" href="#tg">📲 Подключить Telegram</a>
@@ -398,6 +398,8 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
           <div><label>Полив, раз в N дней *</label><input id="bWater" type="number" min="1" max="90" value="7"></div>
           <div><label>Подкормка, раз в N дней *</label><input id="bFeed" type="number" min="1" max="180" value="14"></div>
           <div><label>Пересадка, раз в N месяцев *</label><input id="bRepot" type="number" min="1" max="120" value="24"></div>
+          <div><label>Сезон подкормки: с</label><select id="bFeedFrom"><option value="1">янв</option><option value="2">фев</option><option value="3" selected>мар</option><option value="4">апр</option><option value="5">май</option><option value="6">июн</option><option value="7">июл</option><option value="8">авг</option><option value="9">сен</option><option value="10">окт</option><option value="11">ноя</option><option value="12">дек</option></select></div>
+          <div><label>по</label><select id="bFeedTo"><option value="1">янв</option><option value="2">фев</option><option value="3">мар</option><option value="4">апр</option><option value="5">май</option><option value="6">июн</option><option value="7">июл</option><option value="8">авг</option><option value="9">сен</option><option value="10" selected>окт</option><option value="11">ноя</option><option value="12">дек</option></select></div>
           <div><label>Свет</label><select id="bLight"><option>Яркий рассеянный</option><option>Прямое солнце</option><option>Свет / полутень</option><option>Полутень</option><option>Тень</option></select></div>
           <div><label>Влажность</label><select id="bHum"><option>Низкая</option><option>Умеренная</option><option>Высокая</option><option>Очень высокая</option></select></div>
           <div><label>Температура</label><input id="bTemp" placeholder="18–25 °C"></div>
@@ -422,7 +424,7 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
     <div class="wrap">
       <div class="sec-head reveal"><span class="sec-num">03</span><h2>План на 2 недели</h2><span class="sec-meta" id="planMeta"></span></div>
       <div class="days reveal" id="days"></div>
-      <div class="legend"><span>💧 полив</span><span>🧪 подкормка</span><span>🪴 пересадка</span><span style="margin-left:auto">план строится по вашим отметкам «полито / подкормлено / пересажено»</span></div>
+      <div class="legend"><span>💧 полив</span><span>🧪 подкормка (только в сезон)</span><span>🪴 пересадка</span><span style="margin-left:auto">план строится по вашим отметкам «полито / подкормлено / пересажено»</span></div>
     </div>
   </section>
 
@@ -473,6 +475,7 @@ create table if not exists public.plants (
   sid text not null,
   name text, emoji text, nickname text, room text,
   water_days int, feed_days int, repot_months int,
+  feed_from int, feed_to int,
   light text, humidity text, temp text, tip text, toxic boolean,
   last_water timestamptz, last_feed timestamptz, last_repot timestamptz,
   last_reminded_at timestamptz,
@@ -485,6 +488,7 @@ create table if not exists public.custom_species (
   user_id uuid not null references auth.users(id) on delete cascade,
   name text, emoji text,
   water_days int, feed_days int, repot_months int,
+  feed_from int, feed_to int,
   light text, humidity text, temp text, tip text, toxic boolean,
   created_at timestamptz default now()
 );
@@ -500,7 +504,13 @@ alter table public.custom_species enable row level security;
 alter table public.profiles enable row level security;
 create policy "plants own" on public.plants for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
 create policy "custom own" on public.custom_species for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
-create policy "profiles own" on public.profiles for all using (auth.uid()=id) with check (auth.uid()=id);</pre></details>
+create policy "profiles own" on public.profiles for all using (auth.uid()=id) with check (auth.uid()=id);
+
+-- ЕСЛИ ТАБЛИЦЫ УЖЕ СОЗДАНЫ РАНЬШЕ: выполните только это
+alter table public.plants add column if not exists feed_from int;
+alter table public.plants add column if not exists feed_to int;
+alter table public.custom_species add column if not exists feed_from int;
+alter table public.custom_species add column if not exists feed_to int;</pre></details>
 
         <details class="code"><summary>🤖 Edge Function «tg-webhook» — принимает /start<button class="copybtn" data-copy="hookCode" type="button">копировать</button></summary><pre id="hookCode">// supabase/functions/tg-webhook/index.ts
 // Принимает сообщения общего бота Green Friend
@@ -560,8 +570,9 @@ Deno.serve(async (req) =&gt; {
   return new Response("ok");
 });</pre></details>
 
-        <details class="code"><summary>⏰ Edge Function «reminders» — cron-напоминания<button class="copybtn" data-copy="fnCode" type="button">копировать</button></summary><pre id="fnCode">// supabase/functions/reminders/index.ts
-// Запускается cron-задачей и шлёт накопившиеся задачи в Telegram
+        <details class="code"><summary>⏰ Edge Function «reminders» — cron-напоминания с сезоном<button class="copybtn" data-copy="fnCode" type="button">копировать</button></summary><pre id="fnCode">// supabase/functions/reminders/index.ts
+// Запускается cron-задачей и шлёт накопившиеся задачи в Telegram.
+// Подкормка напоминает ТОЛЬКО в сезон роста растения.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const sb = createClient(
@@ -569,6 +580,12 @@ const sb = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
 const BOT = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
+
+// Исключения по сезону подкормки (для остальных — март–октябрь)
+const OVR: Record&lt;string, [number, number]&gt; = {
+  cyclamen: [10, 3], lithops: [10, 3], azalea: [2, 9],
+  phalaenopsis: [1, 12], saintpaulia: [1, 12],
+};
 
 function json(o: any, s = 200) {
   return new Response(JSON.stringify(o), {
@@ -581,15 +598,24 @@ Deno.serve(async () =&gt; {
   if (error || !plants) return json({ error: error?.message }, 500);
 
   const now = Date.now();
+  const month = new Date().getMonth() + 1;
   const COOLDOWN = 12 * 3600e3; // не дёргать чаще двух раз в сутки
   const dueByUser: Record&lt;string, { lines: string[]; ids: string[] }&gt; = {};
 
   for (const p of plants) {
-    const jobs = [
+    const ov = OVR[p.sid];
+    const fa = p.feed_from ?? ov?.[0] ?? 3;
+    const fb = p.feed_to ?? ov?.[1] ?? 10;
+    const feedInSeason = fa &lt;= fb ? (month &gt;= fa &amp;&amp; month &lt;= fb) : (month &gt;= fa || month &lt;= fb);
+
+    const jobs: [string, number][] = [
       ["💧 Полить", Date.parse(p.last_water) + (p.water_days ?? 7) * 864e5],
-      ["🧪 Подкормить", Date.parse(p.last_feed) + (p.feed_days ?? 14) * 864e5],
       ["🪴 Пересадить", Date.parse(p.last_repot) + (p.repot_months ?? 24) * 2592e6],
-    ] as const;
+    ];
+    if (feedInSeason) {
+      jobs.push(["🧪 Подкормить", Date.parse(p.last_feed) + (p.feed_days ?? 14) * 864e5]);
+    }
+
     const due = jobs.filter(([, d]) =&gt; d &lt;= now);
     if (!due.length) continue;
     if (now - (p.last_reminded_at ? Date.parse(p.last_reminded_at) : 0) &lt; COOLDOWN) continue;
@@ -718,10 +744,6 @@ curl "https://api.telegram.org/bot&lt;ТОКЕН&gt;/setWebhook?url=https://&lt;
 <script>
 /* ═══════════════════════════════════════════════════════════════
    ⚙️ НАСТРОЙКИ ВЛАДЕЛЬЦА САЙТА (заполнить один раз)
-   1. Создайте бота в @BotFather и проект на supabase.com
-   2. Выполните шаги из панели «Для владельца сайта» на странице
-   3. Впишите три значения ниже — и панель настройки исчезнет
-      у всех пользователей навсегда.
    ═══════════════════════════════════════════════════════════════ */
 const OWNER_CONFIG = {
   url: "https://tvbefxxeprwxwmqjqpeo.supabase.co",      // https://xxxx.supabase.co
@@ -735,7 +757,7 @@ const PLANTS=[
 {id:'zamioculcas',name:'Замиокулькас',latin:'Zamioculcas zamiifolia',emoji:'💵',water:14,feed:30,repot:36,diff:1,tags:['easy','shade'],light:'От тени до рассеянного',hum:'Низкая',temp:'18–26 °C',toxic:true,tip:'Поливайте после полной просушки грунта. Клубень на поверхности — это нормально.'},
 {id:'sansevieria',name:'Сансевиерия',latin:'Sansevieria trifasciata',emoji:'🌾',water:14,feed:30,repot:36,diff:1,tags:['easy','shade'],light:'От тени до яркого света',hum:'Низкая',temp:'16–28 °C',toxic:true,tip:'Лучше недолить, чем перелить. Зимой полив почти не нужен.'},
 {id:'spathiphyllum',name:'Спатифиллум',latin:'Spathiphyllum wallisii',emoji:'🤍',water:4,feed:14,repot:24,diff:2,tags:['bloom','shade'],light:'Полутень',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'Опустил листья — срочно поить. В тесном горшке цветёт охотнее.'},
-{id:'phalaenopsis',name:'Фаленопсис (орхидея)',latin:'Phalaenopsis',emoji:'🦋',water:7,feed:21,repot:24,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'Полив замачиванием на 15 минут. Корни зелёные — рано, серебристые — пора.'},
+{id:'phalaenopsis',name:'Фаленопсис (орхидея)',latin:'Phalaenopsis',emoji:'🦋',water:7,feed:21,repot:24,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'Полив замачиванием на 15 минут. Корни зелёные — рано, серебристые — пора. Подкормка круглый год, половинной дозой.'},
 {id:'ficus-benj',name:'Фикус Бенджамина (пёстрый)',latin:'Ficus benjamina',emoji:'🌳',water:5,feed:14,repot:24,diff:2,tags:[],light:'Яркий, без прямого солнца',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Не любит перестановки и сквозняки — от стресса сбрасывает листья.'},
 {id:'ficus-elastica',name:'Фикус каучуконосный (эластика)',latin:'Ficus elastica',emoji:'🥬',water:5,feed:14,repot:24,diff:1,tags:['easy'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Протирайте крупные листья и поворачивайте горшок к свету.'},
 {id:'chlorophytum',name:'Хлорофитум',latin:'Chlorophytum comosum',emoji:'🕷️',water:4,feed:14,repot:12,diff:1,tags:['easy','shade','pet'],light:'От тени до яркого',hum:'Умеренная',temp:'15–25 °C',toxic:false,tip:'Чемпион по выживанию. Сухие кончики — сухой воздух или жёсткая вода.'},
@@ -745,7 +767,7 @@ const PLANTS=[
 {id:'balsam',name:'Бальзамин',latin:'Impatiens walleriana',emoji:'💦',water:3,feed:10,repot:12,diff:2,tags:['bloom','easy'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–25 °C',toxic:true,tip:'«Ванька мокрый»: после полива на листьях выступают капли. Цветёт почти круглый год.'},
 {id:'pelargonium',name:'Пеларгония (герань)',latin:'Pelargonium zonale',emoji:'🌹',water:4,feed:14,repot:12,diff:1,tags:['bloom','easy'],light:'Яркий, солнце',hum:'Умеренная',temp:'15–25 °C',toxic:true,tip:'Бабушкина классика: любит солнце, засуху переносит легче перелива.'},
 {id:'kalanchoe',name:'Каланхоэ',latin:'Kalanchoe blossfeldiana',emoji:'🌼',water:14,feed:30,repot:24,diff:1,tags:['easy','succ','bloom'],light:'Яркий',hum:'Низкая',temp:'15–25 °C',toxic:true,tip:'После цветения срежьте цветоносы и дайте месяц отдыха с редким поливом.'},
-{id:'saintpaulia',name:'Фиалка (сенполия)',latin:'Saintpaulia',emoji:'💜',water:5,feed:14,repot:12,diff:2,tags:['bloom','pet'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:false,tip:'Полив в поддон: вода на листьях оставляет пятна. Любит маленькие горшки.'},
+{id:'saintpaulia',name:'Фиалка (сенполия)',latin:'Saintpaulia',emoji:'💜',water:5,feed:14,repot:12,diff:2,tags:['bloom','pet'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:false,tip:'Полив в поддон: вода на листьях оставляет пятна. При досветке кормят круглый год, понемногу.'},
 {id:'hibiscus',name:'Гибискус',latin:'Hibiscus rosa-sinensis',emoji:'🌺',water:4,feed:10,repot:12,diff:2,tags:['bloom','pet'],light:'Яркий, солнце',hum:'Умеренная',temp:'18–25 °C',toxic:false,tip:'Чем больше света — тем больше цветов. Весенняя обрезка стимулирует цветение.'},
 {id:'anthurium',name:'Антуриум',latin:'Anthurium andraeanum',emoji:'❤️',water:5,feed:14,repot:24,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'«Мужское счастье». Любит влажный воздух, но цветки не опрыскивать.'},
 {id:'begonia',name:'Бегония рекс',latin:'Begonia rex',emoji:'🎨',water:5,feed:14,repot:12,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–24 °C',toxic:true,tip:'Не опрыскивайте листья — будут пятна. Поливайте по краю горшка.'},
@@ -774,10 +796,10 @@ const PLANTS=[
 {id:'haworthia',name:'Хавортия полосатая',latin:'Haworthia fasciata',emoji:'💎',water:14,feed:30,repot:24,diff:1,tags:['easy','succ','pet'],light:'Яркий рассеянный',hum:'Низкая',temp:'12–26 °C',toxic:false,tip:'Прозрачные «окна» на листьях помогают ловить свет.'},
 {id:'echinocactus',name:'Эхинокактус',latin:'Echinocactus grusonii',emoji:'🌵',water:21,feed:30,repot:36,diff:1,tags:['easy','succ'],light:'Прямое солнце',hum:'Низкая',temp:'12–30 °C',toxic:false,tip:'Зимой — полная суховка без единой капли.'},
 {id:'euphorbia-milii',name:'Молочай Миля',latin:'Euphorbia milii',emoji:'👑',water:10,feed:30,repot:24,diff:1,tags:['easy','succ','bloom'],light:'Прямое солнце',hum:'Низкая',temp:'15–27 °C',toxic:true,tip:'«Терновый венец» цветёт почти круглый год на солнце. Сок ядовит.'},
-{id:'lithops',name:'Литопсы',latin:'Lithops',emoji:'🪨',water:21,feed:30,repot:36,diff:2,tags:['succ'],light:'Прямое солнце',hum:'Низкая',temp:'12–30 °C',toxic:false,tip:'Живые камни: во время линьки (зима–весна) не поливайте вообще.'},
+{id:'lithops',name:'Литопсы',latin:'Lithops',emoji:'🪨',water:21,feed:30,repot:36,diff:2,tags:['succ'],light:'Прямое солнце',hum:'Низкая',temp:'12–30 °C',toxic:false,tip:'Живые камни: растут осенью–весной, летом спят. Во время линьки не поливайте.'},
 {id:'areca',name:'Пальма арека',latin:'Dypsis lutescens',emoji:'🌴',water:5,feed:14,repot:36,diff:2,tags:['pet'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:false,tip:'Сухие кончики = сухой воздух. Не любит, когда тревожат корни.'},
 {id:'fatsia',name:'Фатсия японская',latin:'Fatsia japonica',emoji:'🖐️',water:5,feed:14,repot:24,diff:2,tags:['shade'],light:'Свет / полутень',hum:'Умеренная',temp:'15–22 °C',toxic:true,tip:'Прохладная зимовка делает листья-ладошки крупнее.'},
-{id:'cyclamen',name:'Цикламен персидский',latin:'Cyclamen persicum',emoji:'🌸',water:4,feed:14,repot:12,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Умеренная',temp:'10–18 °C',toxic:true,tip:'Любит холод: при +22 сбрасывает цветы. Поливайте по краю горшка, берегите клубень.'},
+{id:'cyclamen',name:'Цикламен персидский',latin:'Cyclamen persicum',emoji:'🌸',water:4,feed:14,repot:12,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Умеренная',temp:'10–18 °C',toxic:true,tip:'Живёт «наоборот»: цветёт осенью–весной, летом спит. Кормят в сезон роста.'},
 {id:'azalea',name:'Азалия',latin:'Rhododendron simsii',emoji:'🌷',water:4,feed:14,repot:24,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'12–18 °C',toxic:true,tip:'Любит кислую почву и прохладный подоконник.'},
 {id:'gloxinia',name:'Глоксиния',latin:'Sinningia speciosa',emoji:'🔔',water:5,feed:10,repot:12,diff:2,tags:['bloom'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Зимой надземная часть отмирает — храните горшок с клубнем в прохладе.'},
 {id:'poinsettia',name:'Пуансеттия',latin:'Euphorbia pulcherrima',emoji:'🎄',water:4,feed:14,repot:12,diff:3,tags:['bloom'],light:'Яркий',hum:'Умеренная',temp:'16–22 °C',toxic:true,tip:'«Рождественская звезда». После праздников срежьте побеги на треть.'},
@@ -789,10 +811,16 @@ const PLANTS=[
 ];
 const TAGS={easy:'неприхотливое',shade:'для тени',bloom:'цветущее',succ:'суккулент',pet:'пет-френдли'};
 const DLAB={1:'неприхотливое',2:'средний уровень',3:'требует внимания'};
+const MGEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const MSHORT=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+const FEED_DEF=[3,10];
+const FEED_OVR={cyclamen:[10,3],lithops:[10,3],azalea:[2,9],phalaenopsis:[1,12],saintpaulia:[1,12]};
+function seasonOf(sp){if(sp&&sp.feedFrom)return[sp.feedFrom,sp.feedTo];return FEED_OVR[sp?.id]||FEED_DEF}
+function inSeason(season,d){const mo=d.getMonth()+1,a=season[0],b=season[1];return a<=b?(mo>=a&&mo<=b):(mo>=a||mo<=b)}
 const TIPS=[
 'Большинство комнатных гибнет от перелива, а не от засухи',
-'Зимой почти все растения пьют реже — проверяйте грунт пальцем на фалангу',
-'Подкормка работает только в сезон роста: с марта по октябрь',
+'Зимой почти все растения спят — подкормка в период покоя вредит',
+'Подкормка работает только в сезон роста: у большинства — март–октябрь',
 'Молодые пересаживают каждый год, взрослые — раз в 2–4 года',
 'Отстоянная вода комнатной температуры — золотой стандарт',
 'Дренажные отверстия обязательны. Всегда. Без исключений',
@@ -800,7 +828,7 @@ const TIPS=[
 'Опрыскивание не заменяет полив — оно про влажность воздуха',
 'Подключите Telegram в один клик — напоминания будут приходить даже ночью'
 ];
-const EMOJI_SET=['🌱','','🍃','','🌴','','🌺','','🌷','','🌹','','🍀','','🪻','','🌻','','🌰','🎍','☘️','🌲','🥀',''];
+const EMOJI_SET=['🌱','','🍃','','🌴','','🌺','','🌷','','🌹','','🍀','','🪻','','🌻','','🌰','','☘️','🌲','🥀','🫚'];
 
 /* ============ СОСТОЯНИЕ ============ */
 const DAY=86400000, LS='gf.data';
@@ -815,9 +843,11 @@ const speciesOf=sid=>sid?.startsWith('cus:')?state.custom.find(c=>'cus:'+c.id===
 const dayKey=ts=>new Date(ts).toDateString();
 function tasks(m){
   const now=Date.now();
+  const season=[m.feedFrom||3,m.feedTo||10];
+  const sleep=!inSeason(season,new Date());
   return [
     {type:'water',emoji:'💧',label:'полить',due:m.lastWater+m.water*DAY,iv:m.water},
-    {type:'feed', emoji:'🧪',label:'подкормить',due:m.lastFeed+m.feed*DAY,iv:m.feed},
+    {type:'feed',emoji:'🧪',label:'подкормить',due:m.lastFeed+m.feed*DAY,iv:m.feed,season,sleep},
     {type:'repot',emoji:'🪴',label:'пересадить',due:m.lastRepot+m.repot*30*DAY,iv:m.repot*30}
   ];
 }
@@ -922,8 +952,10 @@ async function onLogin(user,greet){
   ]);
   if(e1||e2){toast('Ошибка БД: владелец сайта ещё не выполнил SQL-скрипт ⚙️','err');renderAuthUI();renderTg();return}
   CHAT_ID=prof?.chat_id||null;
-  state.custom=(crows||[]).map(r=>({id:r.id,name:r.name,emoji:r.emoji,water:r.water_days,feed:r.feed_days,repot:r.repot_months,light:r.light||'',hum:r.humidity||'',temp:r.temp||'',tip:r.tip||'',toxic:!!r.toxic}));
-  // доудаляем из облака растения, удалённые до входа или офлайн
+  state.custom=(crows||[]).map(r=>{
+    const se=FEED_OVR['cus:'+r.id]||FEED_DEF;
+    return {id:r.id,name:r.name,emoji:r.emoji,water:r.water_days,feed:r.feed_days,repot:r.repot_months,feedFrom:r.feed_from??se[0],feedTo:r.feed_to??se[1],light:r.light||'',hum:r.humidity||'',temp:r.temp||'',tip:r.tip||'',toxic:!!r.toxic};
+  });
   if(state.deletedIds&&state.deletedIds.length){
     await sb.from('plants').delete().in('id',state.deletedIds);
     rows=(rows||[]).filter(r=>!state.deletedIds.includes(r.id));
@@ -932,7 +964,7 @@ async function onLogin(user,greet){
   const migKey='gf.migrated.'+user.id;
   if(!rows.length&&state.mine.length&&!localStorage.getItem(migKey)){
     toast('Переносим локальные растения в облако… ☁️');
-    const up=[];state.custom.forEach(sp=>up.push({id:sp.id,user_id:user.id,name:sp.name,emoji:sp.emoji,water_days:sp.water,feed_days:sp.feed,repot_months:sp.repot,light:sp.light,humidity:sp.hum,temp:sp.temp,tip:sp.tip,toxic:sp.toxic}));
+    const up=[];state.custom.forEach(sp=>up.push({id:sp.id,user_id:user.id,name:sp.name,emoji:sp.emoji,water_days:sp.water,feed_days:sp.feed,repot_months:sp.repot,feed_from:sp.feedFrom,feed_to:sp.feedTo,light:sp.light,humidity:sp.hum,temp:sp.temp,tip:sp.tip,toxic:sp.toxic}));
     if(up.length)await sb.from('custom_species').upsert(up);
     await sb.from('plants').upsert(state.mine.map(plantToRow));
     localStorage.setItem(migKey,'1');
@@ -946,12 +978,15 @@ async function onLogin(user,greet){
 const iso=ts=>new Date(ts).toISOString();
 function plantToRow(m){
   return {id:m.id,user_id:SBUSER.id,sid:m.sid,name:m.name,emoji:m.emoji,nickname:m.nickname||null,room:m.room||null,
-    water_days:m.water,feed_days:m.feed,repot_months:m.repot,light:m.light,humidity:m.hum,temp:m.temp,tip:m.tip,toxic:m.toxic,
+    water_days:m.water,feed_days:m.feed,repot_months:m.repot,feed_from:m.feedFrom||3,feed_to:m.feedTo||10,
+    light:m.light,humidity:m.hum,temp:m.temp,tip:m.tip,toxic:m.toxic,
     last_water:iso(m.lastWater),last_feed:iso(m.lastFeed),last_repot:iso(m.lastRepot),notified:m.notified};
 }
 function rowToPlant(r){
+  const se=FEED_OVR[r.sid]||FEED_DEF;
   return {id:r.id,sid:r.sid,name:r.name,emoji:r.emoji,nickname:r.nickname||'',room:r.room||'',
-    water:r.water_days,feed:r.feed_days,repot:r.repot_months,light:r.light||'',hum:r.humidity||'',temp:r.temp||'',tip:r.tip||'',toxic:!!r.toxic,
+    water:r.water_days,feed:r.feed_days,repot:r.repot_months,feedFrom:r.feed_from??se[0],feedTo:r.feed_to??se[1],
+    light:r.light||'',hum:r.humidity||'',temp:r.temp||'',tip:r.tip||'',toxic:!!r.toxic,
     lastWater:+new Date(r.last_water),lastFeed:+new Date(r.last_feed),lastRepot:+new Date(r.last_repot),notified:r.notified||{}};
 }
 async function persistPlant(m){
@@ -971,7 +1006,7 @@ async function persistDelete(m){
 }
 async function persistCustom(sp){
   saveLocal();
-  if(sb&&SBUSER){await sb.from('custom_species').upsert({id:sp.id,user_id:SBUSER.id,name:sp.name,emoji:sp.emoji,water_days:sp.water,feed_days:sp.feed,repot_months:sp.repot,light:sp.light,humidity:sp.hum,temp:sp.temp,tip:sp.tip,toxic:sp.toxic})}
+  if(sb&&SBUSER){await sb.from('custom_species').upsert({id:sp.id,user_id:SBUSER.id,name:sp.name,emoji:sp.emoji,water_days:sp.water,feed_days:sp.feed,repot_months:sp.repot,feed_from:sp.feedFrom,feed_to:sp.feedTo,light:sp.light,humidity:sp.hum,temp:sp.temp,tip:sp.tip,toxic:sp.toxic})}
 }
 async function persistCustomDelete(id){
   saveLocal();
@@ -1045,6 +1080,9 @@ async function checkChat(){
 
 /* ============ МОИ РАСТЕНИЯ ============ */
 function barHtml(t){
+  if(t.type==='feed'&&t.sleep){
+    return `<div class="bar"><div class="bar-l"><span>🧪 Подкормка</span><span>😴 спит до ${MGEN[t.season[0]-1]}</span></div><div class="track"><div class="fill" style="width:4%;background:#C7D6C2"></div></div></div>`;
+  }
   const d=dl(t);
   const pct=Math.min(100,Math.max(4,(Date.now()-(t.due-t.iv*DAY))/(t.iv*DAY)*100));
   const cls=d<0?'bad':d<=1?'warn':'';
@@ -1064,7 +1102,8 @@ function renderMine(){
   box.innerHTML=list.map(m=>{
     const i=state.mine.indexOf(m);
     const ts=tasks(m);
-    const worst=ts.reduce((a,b)=>dl(a)<dl(b)?a:b);
+    const act=ts.filter(t=>!t.sleep);
+    const worst=(act.length?act:ts).reduce((a,b)=>dl(a)<dl(b)?a:b);
     const st=dl(worst)<0?'bad':dl(worst)<=1?'warn':'ok';
     const chipTxt=st==='ok'?'💚 всё в порядке':`${worst.emoji} ${worst.label}${dl(worst)<0?' — срочно!':dl(worst)===0?' — сегодня':''}`;
     const rd=dl(ts[2]);
@@ -1091,6 +1130,7 @@ function renderMine(){
           ${m.temp?`<dt>🌡 Температура</dt><dd>${esc(m.temp)}</dd>`:''}
           <dt>💧 Полив</dt><dd>раз в ${m.water} дн.</dd>
           <dt>🧪 Подкормка</dt><dd>раз в ${m.feed} дн.</dd>
+          <dt>🧪 Сезон</dt><dd>${MSHORT[(m.feedFrom||3)-1]} – ${MSHORT[(m.feedTo||10)-1]}${ts[1].sleep?' (сейчас спит)':''}</dd>
           <dt>🪴 Пересадка</dt><dd>раз в ${m.repot} мес.</dd>
           <dt>🐾 Питомцы</dt><dd>${m.toxic?'токсично — держите подальше':'безопасно для кошек и собак'}</dd>
         </dl>
@@ -1164,7 +1204,9 @@ $('#hsOk').addEventListener('click',()=>{
   if(!pendingSid)return;
   const sp=speciesOf(pendingSid);if(!sp){toast('Вид не найден','err');return}
   const now=Date.now();
+  const season=seasonOf(sp);
   const m={id:uid(),sid:pendingSid,name:sp.name,emoji:sp.emoji,water:sp.water,feed:sp.feed,repot:sp.repot,
+    feedFrom:season[0],feedTo:season[1],
     light:sp.light||'',hum:sp.hum||'',temp:sp.temp||'',tip:sp.tip||'',toxic:!!sp.toxic,
     nickname:$('#hsNick').value.trim(),room:$('#hsRoom').value.trim(),
     lastWater:now,lastFeed:now,lastRepot:now,notified:{water:0,feed:0,repot:0}};
@@ -1200,12 +1242,13 @@ function renderCatalog(){
   $('#catGrid').innerHTML=list.map((p,idx)=>{
     const sid=p.custom?'cus:'+p.id:p.id;
     const homeCount=state.mine.filter(m=>m.sid===sid).length;
+    const se=seasonOf(p);
     return `<article class="ccard reveal" data-open="${sid}" style="transition-delay:${(idx%8)*40}ms">
       ${p.custom?`<div class="c-tools"><button data-cedit="${p.id}" title="Редактировать">✏️</button><button data-cdel="${p.id}" title="Удалить">🗑</button></div>`:''}
       <div class="cemoji">${p.emoji}</div>
       <div><div class="cname">${esc(p.name)}</div><div class="platin">${esc(p.latin||'своя карточка')}</div></div>
       <div class="dots">${dots(p.diff)}<span class="dlabel">${DLAB[p.diff]}</span></div>
-      <div class="cmeta">💧 раз в ${p.water} дн. · 🧪 раз в ${p.feed} дн.<br>🪴 раз в ${p.repot} мес.${p.light?` · ${esc(p.light.toLowerCase())}`:''}</div>
+      <div class="cmeta">💧 раз в ${p.water} дн. · 🧪 раз в ${p.feed} дн.<br>🪴 раз в ${p.repot} мес. · 🧪 сезон: ${MSHORT[se[0]-1]}–${MSHORT[se[1]-1]}</div>
       <div class="ctags">${p.custom?'<span class="tg-tag mine-tag">🛠 своя</span>':''}${homeCount?`<span class="tg-tag mine-tag">дома: ${homeCount}</span>`:''}${(p.tags||[]).map(t=>`<span class="tg-tag">${TAGS[t]}</span>`).join('')}${p.toxic?'<span class="tg-tag tox">⚠ токсично</span>':''}</div>
       <button class="addbtn" data-add="${sid}">Взять домой +</button>
     </article>`;
@@ -1231,12 +1274,13 @@ $('#catGrid').addEventListener('click',e=>{
 });
 function openModal(sid){
   const p=speciesOf(sid);if(!p)return;
+  const se=seasonOf(p);
   $('#mEmoji').textContent=p.emoji;
   $('#mName').textContent=p.name;
   $('#mLatin').textContent=p.latin||'собственная карточка Green Friend';
   $('#mRows').innerHTML=[
     ['💧 Полив',`раз в ${p.water} дн.`],
-    ['🧪 Подкормка',`раз в ${p.feed} дн. (март–октябрь)`],
+    ['🧪 Подкормка',`раз в ${p.feed} дн. · сезон ${MSHORT[se[0]-1]}–${MSHORT[se[1]-1]}`],
     ['🪴 Пересадка',`раз в ${p.repot} мес., весной`],
     ...(p.light?[['☀️ Свет',p.light]]:[]),
     ...(p.hum?[['💦 Влажность',p.hum]]:[]),
@@ -1272,6 +1316,8 @@ function openBuilder(id){
   $('#builderTitle').textContent=sp?'Редактирование карточки':'Новая карточка растения';
   $('#bName').value=sp?sp.name:'';
   $('#bWater').value=sp?sp.water:7;$('#bFeed').value=sp?sp.feed:14;$('#bRepot').value=sp?sp.repot:24;
+  $('#bFeedFrom').value=sp&&sp.feedFrom?sp.feedFrom:3;
+  $('#bFeedTo').value=sp&&sp.feedTo?sp.feedTo:10;
   $('#bLight').value=sp&&sp.light?sp.light:'Яркий рассеянный';
   $('#bHum').value=sp&&sp.hum?sp.hum:'Умеренная';
   $('#bTemp').value=sp?sp.temp:'';$('#bTip').value=sp?sp.tip:'';$('#bToxic').checked=sp?sp.toxic:false;
@@ -1286,18 +1332,19 @@ $('#bCancel').addEventListener('click',()=>{
 $('#bSave').addEventListener('click',()=>{
   const name=$('#bName').value.trim();
   const water=+$('#bWater').value,feed=+$('#bFeed').value,repot=+$('#bRepot').value;
+  const feedFrom=+$('#bFeedFrom').value||3,feedTo=+$('#bFeedTo').value||10;
   if(!name){toast('Дайте растению название ✍️','err');$('#bName').focus();return}
   if(!(water>0&&feed>0&&repot>0)){toast('Интервалы должны быть больше нуля','err');return}
   if(editCustomId){
     const sp=state.custom.find(c=>c.id===editCustomId);
-    Object.assign(sp,{name,emoji:selEmoji,water,feed,repot,light:$('#bLight').value,hum:$('#bHum').value,temp:$('#bTemp').value.trim(),tip:$('#bTip').value.trim(),toxic:$('#bToxic').checked});
+    Object.assign(sp,{name,emoji:selEmoji,water,feed,repot,feedFrom,feedTo,light:$('#bLight').value,hum:$('#bHum').value,temp:$('#bTemp').value.trim(),tip:$('#bTip').value.trim(),toxic:$('#bToxic').checked});
     persistCustom(sp);
     toast('Карточка обновлена ✅');
     $('#builder').classList.remove('open');$('#builderToggle').classList.remove('open');editCustomId=null;
     renderCatalog();
     return;
   }
-  const sp={id:uid(),name,emoji:selEmoji,water,feed,repot,light:$('#bLight').value,hum:$('#bHum').value,temp:$('#bTemp').value.trim(),tip:$('#bTip').value.trim(),toxic:$('#bToxic').checked};
+  const sp={id:uid(),name,emoji:selEmoji,water,feed,repot,feedFrom,feedTo,light:$('#bLight').value,hum:$('#bHum').value,temp:$('#bTemp').value.trim(),tip:$('#bTip').value.trim(),toxic:$('#bToxic').checked};
   state.custom.push(sp);persistCustom(sp);
   $('#builder').classList.remove('open');$('#builderToggle').classList.remove('open');
   renderCatalog();
@@ -1313,6 +1360,7 @@ function renderCalendar(){
     const d=new Date(+t0+i*DAY);const chips=[];
     state.mine.forEach(m=>{
       tasks(m).forEach(t=>{
+        if(t.type==='feed'&&t.sleep)return;
         const td=new Date(t.due);td.setHours(0,0,0,0);
         if(+td===+d){total++;chips.push(`<span class="tchip ${ {water:'tw',feed:'tf',repot:'tr'}[t.type] }">${t.emoji} ${esc(m.nickname||m.name)}</span>`)}
       });
@@ -1329,6 +1377,7 @@ function updateHeader(){
   let todayCount=0,weekCount=0,soon=null;
   const now=Date.now();
   state.mine.forEach(m=>tasks(m).forEach(t=>{
+    if(t.type==='feed'&&t.sleep)return;
     if(dayKey(t.due)===today)todayCount++;
     if(t.due<now+7*DAY)weekCount++;
     if(!soon||t.due<soon.due)soon=t;
@@ -1347,6 +1396,7 @@ function collectDue(){
   const now=Date.now(),res=[];
   state.mine.forEach(m=>{
     tasks(m).forEach(t=>{
+      if(t.type==='feed'&&t.sleep)return;
       if(t.due<=now&&m.notified[t.type]!==dayKey(t.due))res.push({m,t,key:dayKey(t.due)});
     });
   });
