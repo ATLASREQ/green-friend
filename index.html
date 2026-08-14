@@ -1126,9 +1126,10 @@ $('#mineGrid').addEventListener('click',async e=>{
   const d=e.target.closest('[data-del]');
   if(d){
     if(d.dataset.arm){
-      const m=state.mine[+d.dataset.i];
+      const idx=+d.dataset.del;
+      const m=state.mine[idx];
       const ok=await persistDelete(m);
-      if(ok){state.mine.splice(+d.dataset.i,1);saveLocal();renderAll();toast(`${m.name} убрано из дома 🍂`)}
+      if(ok){state.mine.splice(idx,1);saveLocal();renderAll();toast(`${m.name} убрано из дома 🍂`)}
     }else{
       d.textContent='точно убрать?';d.dataset.arm='1';d.classList.add('arm');
       setTimeout(()=>{if(d.isConnected){d.textContent='✕ убрать';delete d.dataset.arm;d.classList.remove('arm')}},2500);
