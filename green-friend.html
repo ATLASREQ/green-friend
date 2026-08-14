@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Friend — уход за домашними растениями и напоминания в Telegram</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%BF%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;900&family=Golos+Text:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root{
+  --bg:#F3F7EC; --bg2:#E9F1DC; --card:#FFFFFF;
+  --ink:#122A19; --ink-soft:#41584A;
+  --green:#1C7A44; --green-deep:#0E2E1B; --green-mid:#2F8A50;
+  --lime:#B4E75A; --lime-soft:#DFF5B8;
+  --sun:#F7C948; --alert:#E4572E; --line:#CFE0BC;
+  --rl:22px 6px 22px 6px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Golos Text',system-ui,sans-serif;color:var(--ink);font-size:16px;line-height:1.6;
+  background:
+    radial-gradient(600px 400px at 90% -5%, #F7C94822, transparent 60%),
+    radial-gradient(700px 500px at -10% 30%, #B4E75A2E, transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cpath d='M30 110c0-34 26-60 60-60 0 34-26 60-60 60z' fill='none' stroke='%231C7A44' stroke-opacity='.06' stroke-width='2'/%3E%3C/svg%3E"),
+    var(--bg);
+}
+::selection{background:var(--lime);color:var(--green-deep)}
+h1,h2,h3,.disp{font-family:'Unbounded',sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+main{position:relative;z-index:1}
+section{padding:72px 0;scroll-margin-top:96px}
+button{font-family:inherit}
+
+.ticker{background:var(--green-deep);color:#DCEFC2;font-size:13px;overflow:hidden;border-bottom:1px solid rgba(180,231,90,.25);position:relative;z-index:60}
+.ticker-track{display:inline-flex;white-space:nowrap;padding:8px 0;animation:tick 70s linear infinite;will-change:transform}
+.ticker span{padding:0 20px;letter-spacing:.02em}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+.topbar{position:sticky;top:0;z-index:60;background:var(--green-deep);color:#EAF6D8;border-bottom:1px solid rgba(180,231,90,.2);box-shadow:0 10px 30px -18px rgba(14,46,27,.6)}
+.topbar .wrap{display:flex;align-items:center;gap:18px;height:62px}
+.logo{font-family:'Unbounded';font-weight:700;font-size:17px;color:#fff;display:flex;gap:9px;align-items:center;text-decoration:none;letter-spacing:.3px;white-space:nowrap}
+.logo .leaf{display:inline-block;animation:sway 3.4s ease-in-out infinite alternate;transform-origin:bottom center}
+nav{margin-left:auto;display:flex;gap:22px}
+nav a{color:#CFE6B4;text-decoration:none;font-size:14px;font-weight:500;position:relative;white-space:nowrap}
+nav a::after{content:'';position:absolute;left:0;bottom:-6px;height:2px;width:0;background:var(--lime);transition:width .25s}
+nav a:hover::after{width:100%}
+.tg-pill{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;border:1px solid #2E5C3B;border-radius:999px;padding:6px 12px;color:#BFE09C;cursor:pointer;background:#0A2213;text-decoration:none;transition:.2s;white-space:nowrap}
+.tg-pill:hover{border-color:var(--lime)}
+.tg-pill .dot{width:8px;height:8px;border-radius:50%;background:var(--alert);flex:none}
+.tg-pill.on .dot{background:var(--lime);animation:pulse 1.8s infinite}
+.mode-pill{font-size:14px;cursor:help}
+.auth-btn{background:var(--lime);color:#12300F;border:none;font:800 13px 'Golos Text';border-radius:999px;padding:8px 16px;cursor:pointer;transition:.2s;white-space:nowrap;max-width:190px;overflow:hidden;text-overflow:ellipsis}
+.auth-btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px -10px rgba(180,231,90,.6)}
+.today-badge{background:var(--sun);color:#3B2E00;font-weight:800;border-radius:999px;padding:6px 13px;font-size:13px;white-space:nowrap}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(180,231,90,.18)}}
+
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding:64px 0 70px}
+.eyebrow{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--green);font-weight:800;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.eyebrow .sep{color:#9DB49E}
+h1{font-size:clamp(2.1rem,4.6vw,3.85rem);line-height:1.07;font-weight:900;margin:18px 0 20px;letter-spacing:-.01em}
+.hl{background:var(--lime);padding:.02em .18em;border-radius:12px 4px 12px 4px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+@supports ((-webkit-text-stroke:2px #000)){.out{color:transparent;-webkit-text-stroke:2.5px var(--ink)}}
+.lede{font-size:17.5px;color:var(--ink-soft);max-width:52ch}
+.cta{display:flex;gap:14px;margin:28px 0 32px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;background:var(--green);color:#fff;font:700 15px 'Golos Text';border:none;border-radius:16px 5px 16px 5px;padding:15px 24px;cursor:pointer;text-decoration:none;transition:.22s}
+.btn:hover{background:#155f35;transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(28,122,68,.55)}
+.btn:disabled{background:#B9C7B4;cursor:default;transform:none;box-shadow:none}
+.btn-ghost{display:inline-flex;align-items:center;gap:9px;background:transparent;color:var(--ink);font:700 15px 'Golos Text';border:2px solid var(--ink);border-radius:16px 5px 16px 5px;padding:13px 22px;cursor:pointer;text-decoration:none;transition:.22s}
+.btn-ghost:hover{background:var(--ink);color:var(--lime);transform:translateY(-2px)}
+.stats{display:flex;gap:38px;flex-wrap:wrap}
+.stat b{font-family:'Unbounded';font-size:27px;font-weight:700;display:block;color:var(--green-deep)}
+.stat span{font-size:13px;color:var(--ink-soft);font-weight:500}
+
+.scene{position:relative;height:430px;border-radius:34px 12px 34px 12px;background:linear-gradient(180deg,#EDF6DB,#DCEBC2);border:1px solid var(--line);overflow:hidden;box-shadow:0 34px 60px -32px rgba(18,42,25,.4)}
+.scene::before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(18,42,25,.07),rgba(18,42,25,.07)) 58% 0/2px 100% no-repeat,linear-gradient(rgba(18,42,25,.07),rgba(18,42,25,.07)) 0 42%/100% 2px no-repeat}
+.sun{position:absolute;top:32px;right:48px;width:118px;height:118px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFE9A3,var(--sun));animation:sunPulse 6s ease-in-out infinite}
+@keyframes sunPulse{50%{transform:scale(1.07);box-shadow:0 0 70px 14px rgba(247,201,72,.4)}}
+.shelf{position:absolute;left:6%;right:6%;bottom:64px;height:16px;border-radius:8px;background:linear-gradient(180deg,#A9713F,#7E5028);box-shadow:0 16px 22px -12px rgba(60,35,10,.5)}
+.plant{position:absolute;bottom:80px;text-align:center}
+.plant .foliage{font-size:70px;line-height:1;display:block;transform-origin:50% 92%;animation:sway 4.4s ease-in-out infinite alternate;filter:drop-shadow(0 10px 7px rgba(18,42,25,.2))}
+@keyframes sway{from{transform:rotate(-4deg)}to{transform:rotate(4.5deg)}}
+.potsh{width:64px;height:44px;margin:-7px auto 0;background:linear-gradient(180deg,var(--green-mid),#1D5B33);clip-path:polygon(8% 0,92% 0,78% 100%,22% 100%);position:relative}
+.potsh::before{content:'';position:absolute;top:0;left:-4px;right:-4px;height:10px;background:var(--lime);border-radius:4px;opacity:.85}
+.tag{position:absolute;background:#fff;border:1px solid var(--line);border-radius:12px 4px 12px 4px;padding:8px 13px;font-size:13px;font-weight:700;box-shadow:0 12px 26px -14px rgba(18,42,25,.45);animation:bob 5s ease-in-out infinite;z-index:2}
+@keyframes bob{50%{transform:translateY(-9px)}}
+.t1{top:38px;left:26px;transform:rotate(-3deg)}
+.t2{top:150px;right:24px;transform:rotate(2deg);animation-delay:1.2s}
+.t3{bottom:136px;left:38px;transform:rotate(-2deg);animation-delay:2.1s}
+
+.sec-head{display:flex;align-items:baseline;gap:16px;border-bottom:2px dashed var(--line);padding-bottom:16px;margin-bottom:30px;flex-wrap:wrap}
+.sec-num{font-family:'Unbounded';font-weight:900;font-size:15px;color:var(--green)}
+@supports ((-webkit-text-stroke:1px #000)){.sec-num{color:transparent;-webkit-text-stroke:1.4px var(--green)}}
+.sec-head h2{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:700}
+.sec-meta{margin-left:auto;font-size:14px;color:var(--ink-soft);font-weight:600}
+
+.roomchips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.rchip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font:700 13px 'Golos Text';cursor:pointer;transition:.2s;color:var(--ink-soft)}
+.rchip:hover{border-color:var(--green)}
+.rchip.on{background:var(--green);border-color:var(--green);color:#fff}
+.my-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+.empty{display:none;border:2px dashed var(--line);border-radius:var(--rl);padding:54px 30px;text-align:center;background:#fffdf8}
+.empty .big{font-size:54px;display:block;margin-bottom:12px;animation:sway 3s ease-in-out infinite alternate;transform-origin:bottom}
+.empty p{color:var(--ink-soft);max-width:46ch;margin:0 auto 20px}
+.pcard{background:var(--card);border:1px solid var(--line);border-radius:var(--rl);padding:20px;position:relative;transition:transform .25s,box-shadow .25s}
+.pcard:hover{transform:translateY(-4px);box-shadow:0 20px 36px -20px rgba(18,42,25,.4)}
+.pcard-top{display:flex;gap:14px;align-items:center;margin-bottom:10px}
+.pemoji{width:56px;height:56px;font-size:29px;display:grid;place-items:center;background:var(--lime-soft);border-radius:46% 54% 52% 48%/48% 44% 56% 52%;flex:none}
+.ptitles{min-width:0}
+.pname{font-family:'Unbounded';font-size:15.5px;font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.platin{font-size:12.5px;font-style:italic;color:var(--ink-soft)}
+.chip{margin-left:auto;font-size:11.5px;font-weight:800;padding:6px 11px;border-radius:999px;white-space:nowrap;flex:none}
+.chip.ok{background:#DFF2D3;color:#1C6B33}
+.chip.warn{background:#FBEFC9;color:#7A5A00}
+.chip.bad{background:#FBDDD2;color:#A72B0C;animation:pulse 1.6s infinite}
+.room-row{display:flex;align-items:center;gap:8px;margin:4px 0 10px;font-size:13px;color:var(--ink-soft);font-weight:600}
+.roominp{border:1.5px dashed var(--line);background:#FBFDF7;border-radius:9px;padding:5px 10px;font:600 12.5px 'Golos Text';width:150px;color:var(--ink);outline:none;transition:.2s}
+.roominp:focus{border-style:solid;border-color:var(--green)}
+.bar{margin:11px 0}
+.bar-l{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:5px}
+.bar-l span:last-child{color:var(--ink-soft);font-weight:600}
+.track{height:9px;background:#EDF3E2;border-radius:99px;overflow:hidden}
+.fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),#7CC95B);transition:width .8s cubic-bezier(.2,.7,.2,1)}
+.fill.warn{background:linear-gradient(90deg,#E5A62E,var(--sun))}
+.fill.bad{background:linear-gradient(90deg,#C7431E,var(--alert))}
+.repot-line{font-size:13px;color:var(--ink-soft);margin:10px 0 14px;font-weight:500}
+.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.act{position:relative;border:1.5px solid var(--line);background:#fff;border-radius:12px 4px 12px 4px;padding:8px 12px;font:700 13px 'Golos Text';cursor:pointer;transition:.2s;color:var(--ink)}
+.act:hover{border-color:var(--green);background:var(--lime-soft);transform:translateY(-2px)}
+.act:active{transform:scale(.93)}
+.act.main{background:var(--green);color:#fff;border-color:var(--green)}
+.act.main:hover{background:#166338}
+.del{margin-left:auto;border:none;background:none;cursor:pointer;color:#9AB09C;font:700 12.5px 'Golos Text';transition:.2s;padding:6px}
+.del:hover{color:var(--alert)}
+.del.arm{color:var(--alert)}
+.toggle{background:none;border:none;color:var(--green);font:800 13px 'Golos Text';cursor:pointer;padding:0;margin-top:12px}
+.care{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s ease}
+.care>div{overflow:hidden}
+.pcard.open .care{grid-template-rows:1fr}
+.care dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13.5px;margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}
+.care dt{color:var(--ink-soft)}
+.care dd{font-weight:600}
+.tip{margin-top:12px;background:var(--lime-soft);border-left:4px solid var(--green);padding:10px 13px;border-radius:0 10px 10px 0;font-size:13.5px}
+.burst{position:absolute;left:50%;top:0;font-size:15px;pointer-events:none;animation:bpop .7s ease-out forwards}
+@keyframes bpop{to{transform:translate(var(--dx,0),-40px) rotate(20deg);opacity:0}}
+
+.cat-controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
+.filters{display:flex;gap:9px;flex-wrap:wrap}
+.fchip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 16px;font:700 13.5px 'Golos Text';cursor:pointer;transition:.2s;color:var(--ink)}
+.fchip:hover{border-color:var(--green);transform:translateY(-2px)}
+.fchip.on{background:var(--green-deep);color:var(--lime);border-color:var(--green-deep)}
+.search{margin-left:auto;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:9px 18px;font:600 14px 'Golos Text';width:230px;outline:none;transition:.2s;color:var(--ink)}
+.search:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(28,122,68,.12)}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:20px}
+.ccard{background:#fff;border:1px solid var(--line);border-radius:var(--rl);padding:22px 20px;display:flex;flex-direction:column;gap:10px;transition:.25s;cursor:pointer;position:relative}
+.ccard:hover{transform:translateY(-5px) rotate(-.5deg);box-shadow:0 22px 38px -22px rgba(18,42,25,.42);border-color:#B7D69B}
+.ccard:hover .cemoji{animation:wiggle .6s ease}
+@keyframes wiggle{25%{transform:rotate(-9deg) scale(1.12)}75%{transform:rotate(9deg) scale(1.1)}}
+.cemoji{font-size:42px;width:76px;height:76px;display:grid;place-items:center;background:radial-gradient(circle at 30% 25%,#E9F6D2,#D5EBBE);border-radius:52% 48% 44% 56%/50% 54% 46% 50%}
+.cname{font-family:'Unbounded';font-size:15.5px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
+.dots{display:flex;gap:5px;align-items:center}
+.dot{width:9px;height:9px;border-radius:50%;background:#DFE9D0}
+.dot.d1{background:var(--green)}.dot.d2{background:#E0A62B}.dot.d3{background:var(--alert)}
+.dlabel{font-size:12px;color:var(--ink-soft);font-weight:600;margin-left:4px}
+.cmeta{font-size:13.5px;color:var(--ink-soft);line-height:1.75}
+.ctags{display:flex;gap:6px;flex-wrap:wrap}
+.tg-tag{font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:99px;background:#EDF3E2;color:var(--ink-soft)}
+.tg-tag.tox{background:#FBDDD2;color:#A72B0C}
+.tg-tag.mine-tag{background:#D9E8FA;color:#186096}
+.addbtn{margin-top:auto;border:2px solid var(--green);background:transparent;color:var(--green);font:800 14px 'Golos Text';border-radius:13px 4px 13px 4px;padding:11px;cursor:pointer;transition:.2s}
+.addbtn:hover:not(:disabled){background:var(--green);color:#fff;transform:translateY(-2px)}
+.addbtn:disabled{border-color:var(--line);color:#9AB09C;background:#F4F8EE;cursor:default}
+.c-tools{position:absolute;top:14px;right:14px;display:flex;gap:6px}
+.c-tools button{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:13px;transition:.2s}
+.c-tools button:hover{background:var(--lime-soft);border-color:var(--green)}
+.c-tools .arm{background:#FBDDD2;border-color:var(--alert)}
+
+.builder-toggle{display:flex;align-items:center;gap:12px;width:100%;border:2px dashed var(--green);background:#FBFDF5;color:var(--green);border-radius:var(--rl);padding:18px 24px;font:800 16px 'Golos Text';cursor:pointer;transition:.2s;margin-bottom:22px}
+.builder-toggle:hover{background:var(--lime-soft)}
+.builder-toggle .arr{margin-left:auto;transition:.3s;font-size:18px}
+.builder-toggle.open .arr{transform:rotate(180deg)}
+.builder{display:none;background:#fff;border:1px solid var(--line);border-radius:var(--rl);padding:26px;margin-bottom:26px;box-shadow:0 18px 36px -24px rgba(18,42,25,.3)}
+.builder.open{display:block;animation:pop .35s ease}
+.b-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:16px}
+.b-grid .full{grid-column:1/-1}
+.b-grid label{display:block;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin-bottom:6px}
+.b-grid input,.b-grid select,.b-grid textarea,.aform input{width:100%;border:1.5px solid var(--line);background:#FBFDF7;border-radius:12px;padding:11px 13px;font:500 14px 'Golos Text';outline:none;transition:.2s;color:var(--ink)}
+.b-grid input:focus,.b-grid select:focus,.b-grid textarea:focus,.aform input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(28,122,68,.1)}
+.b-grid textarea{resize:vertical;min-height:64px}
+.emj{display:flex;flex-wrap:wrap;gap:6px}
+.emj button{width:38px;height:38px;font-size:19px;border-radius:10px;border:1.5px solid var(--line);background:#fff;cursor:pointer;transition:.15s}
+.emj button:hover{transform:scale(1.12)}
+.emj button.sel{background:var(--lime);border-color:var(--green)}
+.emj input{width:70px;text-align:center}
+.b-actions{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+.chk{display:flex;align-items:center;gap:9px;font:600 14px 'Golos Text';cursor:pointer;margin-top:28px}
+.chk input{width:18px;height:18px;accent-color:var(--green)}
+
+.days{display:flex;gap:12px;overflow-x:auto;padding:6px 2px 18px;scroll-snap-type:x mandatory}
+.days::-webkit-scrollbar{height:8px}
+.days::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+.day{min-width:134px;scroll-snap-align:start;background:#fff;border:1px solid var(--line);border-radius:16px 5px 16px 5px;padding:13px;flex:none}
+.day.today{border:2px solid var(--green);background:var(--lime-soft)}
+.day .wd{font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--green)}
+.day .dt{font-family:'Unbounded';font-size:21px;font-weight:700;margin:2px 0 8px}
+.tchip{display:block;font-size:12px;font-weight:700;padding:5px 8px;border-radius:8px;margin-top:5px;border:1px solid;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tw{background:#E3F0FA;color:#186096;border-color:#BFDCF0}
+.tf{background:#FBF0CE;color:#8A6410;border-color:#EDD98F}
+.tr{background:#F0E3D3;color:#7A4B22;border-color:#DCC3A2}
+.free{font-size:12px;color:#9DB49E;font-weight:600}
+.more{font-size:11.5px;font-weight:800;color:var(--green);display:block;margin-top:4px}
+.legend{display:flex;gap:20px;font-size:13px;color:var(--ink-soft);margin-top:8px;flex-wrap:wrap;font-weight:600}
+
+.cloudpanel{background:linear-gradient(150deg,#0F2E1B,#164422 60%,#0F2E1B);color:#E7F4D6;border-radius:32px 10px 32px 10px;padding:46px;box-shadow:0 44px 80px -44px rgba(14,46,27,.65);position:relative;overflow:hidden}
+.cloudpanel::after{content:'🌿';position:absolute;right:-26px;bottom:-40px;font-size:210px;opacity:.08;transform:rotate(-8deg);pointer-events:none}
+.cloudpanel h2{color:#fff;font-size:clamp(1.4rem,2.6vw,2rem);margin-bottom:8px}
+.tg-sub{color:#BFE09C;font-size:14.5px;margin-bottom:24px}
+.step{display:flex;gap:15px;margin-bottom:17px}
+.step b{font-family:'Unbounded';color:var(--lime);font-size:19px;min-width:30px;flex:none}
+.step p{font-size:14px;line-height:1.6;color:#CBE3AF}
+.step code,.cloudpanel code{background:#0A2213;border:1px solid #2C5A38;padding:1px 8px;border-radius:6px;color:var(--lime);font-size:12.5px;font-family:ui-monospace,monospace}
+.cloudpanel label{display:block;font-size:12.5px;font-weight:800;margin:15px 0 6px;color:#BFE09C;letter-spacing:.05em;text-transform:uppercase}
+.cloudpanel input{width:100%;background:#0A2213;border:1.5px solid #2C5A38;border-radius:12px;padding:12px 14px;color:#EAF6D8;font:500 14px 'Golos Text';outline:none;transition:.2s}
+.cloudpanel input:focus{border-color:var(--lime);box-shadow:0 0 0 4px rgba(180,231,90,.14)}
+.tgbtns{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap}
+.btn-lime{background:var(--lime);color:#12300F;font:800 14.5px 'Golos Text';border:none;border-radius:14px 5px 14px 5px;padding:13px 20px;cursor:pointer;transition:.2s}
+.btn-lime:hover{transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(180,231,90,.55)}
+.btn-line{background:none;border:1.5px solid #3F7A4E;color:#CFE9B0;font:700 13.5px 'Golos Text';border-radius:14px 5px 14px 5px;padding:12px 18px;cursor:pointer;transition:.2s}
+.btn-line:hover{border-color:var(--lime);color:var(--lime)}
+.tglog{margin-top:28px}
+.tglog h4{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#9CC47E;margin-bottom:10px}
+.tglog ul{list-style:none;max-height:150px;overflow:auto}
+.tglog li{font-size:12.5px;border-bottom:1px dashed #24512F;padding:7px 0;color:#B9D79B}
+.tglog time{color:#7FA97F;margin-right:8px;font-weight:700}
+.warn-note{margin-top:20px;font-size:12.5px;color:#EED98B;border:1px dashed #6B7B34;border-radius:12px;padding:11px 14px;line-height:1.55}
+.tg-state{text-align:center;padding:26px 16px;position:relative;z-index:1}
+.tg-state b{display:block;font-family:'Unbounded';font-size:18px;color:#fff;margin-bottom:10px;line-height:1.35}
+.tg-state .sub{color:#CBE3AF;font-size:14px;display:block;max-width:52ch;margin:0 auto}
+.bigic{font-size:46px;display:block;margin:0 auto 14px;width:max-content;animation:sway 3s ease-in-out infinite alternate;transform-origin:bottom}
+.bigic.spin{animation-duration:1s}
+.sync-badge{margin-top:18px;font-size:13px;font-weight:700;color:#BFE09C;position:relative;z-index:1}
+.own-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:14px;position:relative;z-index:1}
+.cloudpanel ol.plain{margin:14px 0 0 18px;color:#CBE3AF;font-size:13.5px;position:relative;z-index:1}
+.cloudpanel ol.plain li{margin-bottom:8px}
+details.code{background:#0A2213;border:1px solid #2C5A38;border-radius:14px;margin-top:14px;position:relative;z-index:1}
+details.code summary{cursor:pointer;padding:13px 16px;font:700 13.5px 'Golos Text';color:var(--lime);list-style:none;display:flex;align-items:center;gap:10px}
+details.code summary::-webkit-details-marker{display:none}
+details.code summary::after{content:'▾';margin-left:auto;transition:.25s}
+details.code[open] summary::after{transform:rotate(180deg)}
+details.code pre{padding:6px 16px 16px;font:12px/1.55 ui-monospace,Menlo,monospace;color:#CDE8AE;overflow:auto;max-height:340px;white-space:pre}
+.copybtn{border:1px solid #3F7A4E;background:none;color:#CFE9B0;font:700 11.5px 'Golos Text';border-radius:8px;padding:3px 10px;cursor:pointer;transition:.2s;flex:none}
+.copybtn:hover{border-color:var(--lime);color:var(--lime)}
+
+.modal{position:fixed;inset:0;display:none;place-items:center;z-index:100;padding:20px}
+.modal.show{display:grid}
+.modal-back{position:absolute;inset:0;background:rgba(12,30,18,.55)}
+.modal-card{position:relative;background:#fff;border-radius:26px 8px 26px 8px;max-width:540px;width:100%;padding:34px;max-height:88vh;overflow:auto;animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes pop{from{transform:translateY(26px) scale(.96);opacity:0}}
+.mclose{position:absolute;top:14px;right:14px;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);background:#fff;cursor:pointer;font-size:16px;transition:.2s}
+.mclose:hover{background:var(--lime-soft);transform:rotate(90deg)}
+.memoji{font-size:58px;display:inline-block;animation:sway 3s ease-in-out infinite alternate;transform-origin:bottom}
+.modal-card h3{font-size:22px;margin:8px 0 2px}
+.mrows{display:grid;grid-template-columns:160px 1fr;gap:9px 14px;font-size:14.5px;margin:22px 0}
+.mrows dt{color:var(--ink-soft);font-weight:500}
+.mrows dd{font-weight:700}
+.aform label{color:var(--green);display:block;font-size:12.5px;font-weight:800;margin:15px 0 6px;text-transform:uppercase;letter-spacing:.05em}
+.aform{margin-top:18px}
+.atabs{display:flex;gap:8px;margin-top:14px}
+.atab{flex:1;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:11px;font:800 14px 'Golos Text';cursor:pointer;transition:.2s;color:var(--ink-soft)}
+.atab.on{background:var(--green);border-color:var(--green);color:#fff}
+.amsg{font-size:13px;color:var(--alert);font-weight:600;min-height:20px;margin-top:12px}
+.amsg.good{color:var(--green)}
+
+.toasts{position:fixed;right:20px;bottom:20px;z-index:200;display:flex;flex-direction:column;gap:10px}
+.toast{background:var(--green-deep);color:#EAF6D8;padding:13px 18px;border-radius:14px 5px 14px 5px;font-size:14px;font-weight:600;box-shadow:0 18px 32px -14px rgba(14,46,27,.55);animation:tin .35s;max-width:340px;border-left:4px solid var(--lime)}
+.toast.err{border-left-color:var(--alert)}
+.toast.warn{border-left-color:var(--sun)}
+@keyframes tin{from{transform:translateX(30px);opacity:0}}
+.toast.out{animation:tout .3s forwards}
+@keyframes tout{to{transform:translateX(40px);opacity:0}}
+footer{border-top:2px dashed var(--line);padding:38px 0 46px;color:var(--ink-soft);font-size:13.5px}
+footer .wrap{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
+.leaves-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.fleaf{position:absolute;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 4C14 20 10 40 32 60 54 40 50 20 32 4z' fill='%231C7A44' fill-opacity='.10'/%3E%3Cpath d='M32 12v44' stroke='%231C7A44' stroke-opacity='.16' stroke-width='2'/%3E%3C/svg%3E") center/contain no-repeat;animation:drift ease-in-out infinite alternate}
+@keyframes drift{from{transform:translateY(0) rotate(-6deg)}to{transform:translateY(-46px) rotate(14deg)}}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+@media (max-width:960px){
+  .hero{grid-template-columns:1fr;gap:36px}
+  .scene{height:350px}
+  .cloudpanel{padding:30px}
+}
+@media (max-width:720px){
+  nav{display:none}
+  .hero{padding-top:38px}
+  .today-badge,.tg-pill .tp-txt{display:none}
+  .search{width:100%;margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div class="leaves-bg" aria-hidden="true">
+  <span class="fleaf" style="left:4%;top:22%;width:60px;height:60px;animation-duration:22s"></span>
+  <span class="fleaf" style="left:14%;top:64%;width:40px;height:40px;animation-duration:28s;animation-delay:3s"></span>
+  <span class="fleaf" style="right:6%;top:16%;width:52px;height:52px;animation-duration:25s;animation-delay:1s"></span>
+  <span class="fleaf" style="right:16%;top:70%;width:70px;height:70px;animation-duration:31s;animation-delay:5s"></span>
+  <span class="fleaf" style="left:48%;top:88%;width:46px;height:46px;animation-duration:26s;animation-delay:2s"></span>
+  <span class="fleaf" style="left:78%;top:42%;width:36px;height:36px;animation-duration:24s;animation-delay:7s"></span>
+</div>
+
+<datalist id="roomList">
+  <option>Гостиная</option><option>Спальня</option><option>Кухня</option><option>Детская</option>
+  <option>Ванная</option><option>Прихожая</option><option>Балкон</option><option>Офис</option>
+</datalist>
+
+<div class="ticker" aria-hidden="true"><div class="ticker-track" id="tickerTrack"></div></div>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="logo" href="#top"><span class="leaf">🌿</span>GREEN&nbsp;FRIEND</a>
+    <nav>
+      <a href="#mine">Мои растения</a>
+      <a href="#catalog">Каталог</a>
+      <a href="#plan">План</a>
+      <a href="#tg">Telegram</a>
+    </nav>
+    <span class="today-badge" id="todayBadge" hidden></span>
+    <a class="tg-pill" id="tgPill" href="#tg"><span class="dot"></span><span class="tp-txt" id="tgPillTxt">Telegram не подключён</span></a>
+    <span class="tg-pill mode-pill" id="modePill" title="Локальный режим: данные хранятся в этом браузере">💾</span>
+    <button class="auth-btn" id="authBtn">Войти</button>
+  </div>
+</header>
+
+<main id="top">
+
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-copy reveal in">
+        <div class="eyebrow">🪴 Green Friend <span class="sep">✦</span> напоминания в Telegram 24/7 <span class="sep">✦</span> <span id="heroDate"></span></div>
+        <h1>Поливай <span class="hl">вовремя</span>.<br>Удобряй <span class="out">с умом</span>.</h1>
+        <p class="lede">Выбери растения, которые живут у тебя дома — из 50 популярных видов или собери свою карточку. Green Friend составит план ухода и напомнит в Telegram про полив, подкормку и пересадку — даже когда вкладка закрыта.</p>
+        <div class="cta">
+          <a class="btn" href="#catalog">Выбрать растения ↓</a>
+          <a class="btn-ghost" href="#tg">📲 Подключить Telegram</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="stMine">0</b><span>растений дома</span></div>
+          <div class="stat"><b id="stWeek">0</b><span>задач на неделю</span></div>
+          <div class="stat"><b id="stNext">—</b><span>ближайшее дело</span></div>
+        </div>
+      </div>
+      <div class="scene reveal in" aria-hidden="true">
+        <div class="sun"></div>
+        <div class="tag t1">🧪 Фикус (гостиная) — сегодня</div>
+        <div class="tag t2">💧 Монстера (кухня) — через 2 дня</div>
+        <div class="tag t3">🪴 Калатея (спальня) — весной</div>
+        <div class="shelf"></div>
+        <div class="plant" style="left:8%"><span class="foliage" style="animation-duration:4.1s">🌿</span><div class="potsh"></div></div>
+        <div class="plant" style="left:31%"><span class="foliage" style="font-size:82px;animation-duration:5.2s;animation-delay:.7s">🌺</span><div class="potsh"></div></div>
+        <div class="plant" style="left:55%"><span class="foliage" style="font-size:66px;animation-duration:4.6s;animation-delay:1.4s">🌾</span><div class="potsh"></div></div>
+        <div class="plant" style="left:76%"><span class="foliage" style="font-size:56px;animation-duration:3.8s;animation-delay:.3s">🌵</span><div class="potsh"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <section id="mine">
+    <div class="wrap">
+      <div class="sec-head reveal"><span class="sec-num">01</span><h2>Мои растения</h2><span class="sec-meta" id="mineMeta"></span></div>
+      <div class="roomchips" id="roomChips"></div>
+      <div class="empty" id="mineEmpty">
+        <span class="big">🪴</span>
+        <p>На подоконнике пока пусто. Загляните в каталог — там 50 популярных растений с честными правилами ухода. Не нашли своё? Соберите карточку сами.</p>
+        <a class="btn" href="#catalog">Открыть каталог</a>
+      </div>
+      <div class="my-grid" id="mineGrid"></div>
+    </div>
+  </section>
+
+  <section id="catalog">
+    <div class="wrap">
+      <div class="sec-head reveal"><span class="sec-num">02</span><h2>Каталог растений</h2><span class="sec-meta">50 самых популярных в России + свои карточки</span></div>
+
+      <button class="builder-toggle reveal" id="builderToggle">🛠 Не нашли своё растение? Соберите собственную карточку <span class="arr">▾</span></button>
+      <div class="builder" id="builder">
+        <b class="disp" style="font-size:16px" id="builderTitle">Новая карточка растения</b>
+        <div class="b-grid">
+          <div><label>Название *</label><input id="bName" placeholder="Например, Эпифиллум"></div>
+          <div><label>Эмодзи</label><div class="emj" id="bEmj"></div></div>
+          <div><label>Полив, раз в N дней *</label><input id="bWater" type="number" min="1" max="90" value="7"></div>
+          <div><label>Подкормка, раз в N дней *</label><input id="bFeed" type="number" min="1" max="180" value="14"></div>
+          <div><label>Пересадка, раз в N месяцев *</label><input id="bRepot" type="number" min="1" max="120" value="24"></div>
+          <div><label>Свет</label><select id="bLight"><option>Яркий рассеянный</option><option>Прямое солнце</option><option>Свет / полутень</option><option>Полутень</option><option>Тень</option></select></div>
+          <div><label>Влажность</label><select id="bHum"><option>Низкая</option><option>Умеренная</option><option>Высокая</option><option>Очень высокая</option></select></div>
+          <div><label>Температура</label><input id="bTemp" placeholder="18–25 °C"></div>
+          <div class="full"><label>Совет по уходу</label><textarea id="bTip" placeholder="Ваши наблюдения и секреты…"></textarea></div>
+          <div class="full"><label class="chk"><input type="checkbox" id="bToxic"> ⚠ Токсично для кошек и собак</label></div>
+        </div>
+        <div class="b-actions">
+          <button class="btn" id="bSave">Поселить в каталог и домой 🏡</button>
+          <button class="btn-ghost" id="bCancel">Отмена</button>
+        </div>
+      </div>
+
+      <div class="cat-controls">
+        <div class="filters" id="filters"></div>
+        <input class="search" id="catSearch" type="search" placeholder="🔍 Поиск по каталогу…">
+      </div>
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+  </section>
+
+  <section id="plan">
+    <div class="wrap">
+      <div class="sec-head reveal"><span class="sec-num">03</span><h2>План на 2 недели</h2><span class="sec-meta" id="planMeta"></span></div>
+      <div class="days reveal" id="days"></div>
+      <div class="legend"><span>💧 полив</span><span>🧪 подкормка</span><span>🪴 пересадка</span><span style="margin-left:auto">план строится по вашим отметкам «полито / подкормлено / пересажено»</span></div>
+    </div>
+  </section>
+
+  <section id="tg">
+    <div class="wrap">
+      <div class="sec-head reveal"><span class="sec-num">04</span><h2>Telegram-напоминания</h2><span class="sec-meta">работают даже при закрытой вкладке</span></div>
+
+      <div class="cloudpanel reveal" style="margin-bottom:26px">
+        <h2>Один общий бот — ноль настроек для вас</h2>
+        <p class="tg-sub">Не нужно создавать ботов и копировать токены. Просто нажмите «Start» — и напоминания начнут приходить в ваш Telegram.</p>
+        <div id="tgBox"></div>
+        <div class="tgbtns" style="margin-top:6px">
+          <button class="btn-line" id="btnCheck">Проверить задачи сейчас</button>
+          <button class="btn-line" id="btnBrowser">🔔 Браузерные уведомления</button>
+        </div>
+        <div class="tglog">
+          <h4>Журнал сайта · пока вкладка открыта</h4>
+          <ul id="logList"></ul>
+        </div>
+      </div>
+
+      <div class="cloudpanel reveal" id="ownerPanel">
+        <h2>⚙️ Для владельца сайта — настройка один раз</h2>
+        <p class="tg-sub">Вы настраиваете всё один раз у себя — дальше пользователи только регистрируются и жмут «Подключить Telegram». О Supabase они даже не узнают.</p>
+        <div class="sync-badge" id="cfgStatus"></div>
+        <div id="cfgWrap">
+          <div class="own-grid">
+            <div><label>Supabase URL проекта</label><input id="sbUrl" spellcheck="false" placeholder="https://xxxx.supabase.co"></div>
+            <div><label>Anon key (публичный)</label><input id="sbKey" spellcheck="false" placeholder="eyJhbGciOi…"></div>
+            <div><label>Юзернейм бота (без @)</label><input id="sbBot" spellcheck="false" placeholder="green_friend_bot"></div>
+          </div>
+          <div class="tgbtns"><button class="btn-lime" id="btnSbSave">Сохранить и подключить ☁️</button></div>
+        </div>
+        <ol class="plain">
+          <li>Создайте <b>одного общего бота</b>: <code>@BotFather</code> → <code>/newbot</code> → скопируйте токен.</li>
+          <li>Создайте проект на <code>supabase.com</code>, выполните <b>SQL-скрипт</b> ниже; в <b>Authentication → Providers → Email</b> отключите «Confirm email».</li>
+          <li>Задайте секреты и задеплойте обе Edge Functions (<b>tg-webhook</b> и <b>reminders</b>) — код ниже.</li>
+          <li>Подключите вебхук командой <b>curl</b> (ниже) — бот начнёт принимать /start от пользователей.</li>
+          <li>Создайте <b>cron-задачу</b> для функции reminders — она шлёт напоминания, даже когда вкладка закрыта.</li>
+          <li>Впишите url, anon key и имя бота в <code>OWNER_CONFIG</code> вверху index.html и выкладывайте сайт. Эта панель после этого исчезнет у всех. Поля выше — чтобы протестировать без правки кода.</li>
+        </ol>
+        <div class="warn-note">🔒 Безопасность: anon key публичный — доступ к данным ограничивает Row Level Security (каждый видит только своё). Токен бота и service_role ключ живут только в секретах сервера и в браузер не попадают.</div>
+
+        <details class="code"><summary>📋 SQL: таблицы и права<button class="copybtn" data-copy="sqlCode" type="button">копировать</button></summary><pre id="sqlCode">-- Растения пользователей
+create table if not exists public.plants (
+  id uuid primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  sid text not null,
+  name text, emoji text, nickname text, room text,
+  water_days int, feed_days int, repot_months int,
+  light text, humidity text, temp text, tip text, toxic boolean,
+  last_water timestamptz, last_feed timestamptz, last_repot timestamptz,
+  last_reminded_at timestamptz,
+  notified jsonb default '{}'::jsonb,
+  created_at timestamptz default now()
+);
+-- Свои карточки видов
+create table if not exists public.custom_species (
+  id uuid primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  name text, emoji text,
+  water_days int, feed_days int, repot_months int,
+  light text, humidity text, temp text, tip text, toxic boolean,
+  created_at timestamptz default now()
+);
+-- Профиль: привязка Telegram-чата
+create table if not exists public.profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  chat_id text,
+  tg_connected_at timestamptz,
+  created_at timestamptz default now()
+);
+alter table public.plants enable row level security;
+alter table public.custom_species enable row level security;
+alter table public.profiles enable row level security;
+create policy "plants own" on public.plants for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
+create policy "custom own" on public.custom_species for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
+create policy "profiles own" on public.profiles for all using (auth.uid()=id) with check (auth.uid()=id);</pre></details>
+
+        <details class="code"><summary>🤖 Edge Function «tg-webhook» — принимает /start<button class="copybtn" data-copy="hookCode" type="button">копировать</button></summary><pre id="hookCode">// supabase/functions/tg-webhook/index.ts
+// Принимает сообщения общего бота Green Friend
+import { createClient } from "npm:@supabase/supabase-js@2";
+
+const sb = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+);
+const BOT = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
+
+async function send(chat_id: string, text: string) {
+  await fetch(`https://api.telegram.org/bot${BOT}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id, text }),
+  });
+}
+
+Deno.serve(async (req) =&gt; {
+  const secret = Deno.env.get("TELEGRAM_SECRET_TOKEN");
+  if (secret &amp;&amp; req.headers.get("x-telegram-bot-api-secret-token") !== secret) {
+    return new Response("forbidden", { status: 403 });
+  }
+  let update: any;
+  try { update = await req.json(); } catch { return new Response("ok"); }
+  const msg = update.message;
+  if (!msg?.text) return new Response("ok");
+
+  const chatId = String(msg.chat.id);
+  const text = msg.text.trim();
+
+  // /start USER_ID — пришёл по ссылке с сайта: привязываем чат
+  const m = text.match(/^\/start(?:@\w*)?\s+([\w-]+)/);
+  if (m) {
+    await sb.from("profiles").upsert({
+      id: m[1], chat_id: chatId,
+      tg_connected_at: new Date().toISOString(),
+    });
+    await send(chatId,
+      "✅ Готово! Вы подключили напоминания Green Friend.\n\n" +
+      "Я напишу, когда растение действительно ждёт: полить 💧, подкормить 🧪 или пересадить 🪴.\n\n" +
+      "/test — посмотреть пример напоминания");
+  } else if (text.startsWith("/test")) {
+    await send(chatId,
+      "🧪 Пример напоминания:\n\n🌿 Green Friend напоминает!\n🗓 пятница, 14 августа\n\n" +
+      "💧 Полить: 🌿 Монстера · Кухня\n🧪 Подкормить: 🌳 Фикус · Гостиная\n\n" +
+      "Хорошего дня вашим зелёным! 🪴");
+  } else if (text.startsWith("/status")) {
+    const { data } = await sb.from("profiles").select("id").eq("chat_id", chatId).maybeSingle();
+    await send(chatId, data
+      ? "✅ Чат привязан к аккаунту. Напоминания приходят по расписанию."
+      : "⚠️ Чат не привязан. Нажмите «Start» по ссылке с сайта Green Friend.");
+  } else {
+    await send(chatId, "Я бот Green Friend 🌿\n\n/test — пример напоминания\n/status — проверить привязку\n\nПодключение — по ссылке с сайта.");
+  }
+  return new Response("ok");
+});</pre></details>
+
+        <details class="code"><summary>⏰ Edge Function «reminders» — cron-напоминания<button class="copybtn" data-copy="fnCode" type="button">копировать</button></summary><pre id="fnCode">// supabase/functions/reminders/index.ts
+// Запускается cron-задачей и шлёт накопившиеся задачи в Telegram
+import { createClient } from "npm:@supabase/supabase-js@2";
+
+const sb = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+);
+const BOT = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
+
+function json(o: any, s = 200) {
+  return new Response(JSON.stringify(o), {
+    status: s, headers: { "Content-Type": "application/json" },
+  });
+}
+
+Deno.serve(async () =&gt; {
+  const { data: plants, error } = await sb.from("plants").select("*");
+  if (error || !plants) return json({ error: error?.message }, 500);
+
+  const now = Date.now();
+  const COOLDOWN = 12 * 3600e3; // не дёргать чаще двух раз в сутки
+  const dueByUser: Record&lt;string, { lines: string[]; ids: string[] }&gt; = {};
+
+  for (const p of plants) {
+    const jobs = [
+      ["💧 Полить", Date.parse(p.last_water) + (p.water_days ?? 7) * 864e5],
+      ["🧪 Подкормить", Date.parse(p.last_feed) + (p.feed_days ?? 14) * 864e5],
+      ["🪴 Пересадить", Date.parse(p.last_repot) + (p.repot_months ?? 24) * 2592e6],
+    ] as const;
+    const due = jobs.filter(([, d]) =&gt; d &lt;= now);
+    if (!due.length) continue;
+    if (now - (p.last_reminded_at ? Date.parse(p.last_reminded_at) : 0) &lt; COOLDOWN) continue;
+    const bucket = (dueByUser[p.user_id] ||= { lines: [], ids: [] });
+    due.forEach(([label]) =&gt; bucket.lines.push(
+      `${label}: ${p.emoji} ${p.nickname || p.name}${p.room ? ` · ${p.room}` : ""}`
+    ));
+    bucket.ids.push(p.id);
+  }
+
+  let sent = 0;
+  for (const [uid, b] of Object.entries(dueByUser)) {
+    const { data: prof } = await sb.from("profiles")
+      .select("chat_id").eq("id", uid).maybeSingle();
+    if (!prof?.chat_id) continue;
+    const text = `🌿 Green Friend напоминает!\n🗓 ${new Date().toLocaleDateString("ru-RU", {
+      weekday: "long", day: "numeric", month: "long",
+    })}\n\n${b.lines.join("\n")}\n\nХорошего дня вашим зелёным! 🪴`;
+    const r = await fetch(`https://api.telegram.org/bot${BOT}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id: prof.chat_id, text }),
+    });
+    if (r.ok) {
+      sent++;
+      await sb.from("plants")
+        .update({ last_reminded_at: new Date().toISOString() }).in("id", b.ids);
+    }
+  }
+  return json({ users: Object.keys(dueByUser).length, sent });
+});</pre></details>
+
+        <details class="code"><summary>🚀 Деплой, вебхук и cron<button class="copybtn" data-copy="cliCode" type="button">копировать</button></summary><pre id="cliCode"># 0. Бот: @BotFather → /newbot → копируем токен (один на всех)
+
+# 1. Supabase CLI (один раз)
+npm i -g supabase
+supabase login
+supabase link --project-ref РЕФ_ПРОЕКТА          # виден в URL проекта
+
+# 2. Секреты
+supabase secrets set TELEGRAM_BOT_TOKEN=123456:ABC…
+supabase secrets set TELEGRAM_SECRET_TOKEN=любая_длинная_строка
+
+# 3. Деплой функций (папки supabase/functions/tg-webhook и reminders)
+supabase functions deploy tg-webhook --no-verify-jwt
+supabase functions deploy reminders --no-verify-jwt
+
+# 4. Вебхук (один раз). URL функции смотрите в панели: Edge Functions → tg-webhook
+curl "https://api.telegram.org/bot&lt;ТОКЕН&gt;/setWebhook?url=https://&lt;REF&gt;.functions.co/tg-webhook&amp;secret_token=&lt;TELEGRAM_SECRET_TOKEN&gt;"
+
+# 5. Cron: панель Supabase → Cron Jobs → New job
+#    тип: Edge Function «reminders», расписание: 0 */2 * * * (каждые 2 часа)
+
+# 6. Впишите url, anon key и имя бота в OWNER_CONFIG вверху index.html</pre></details>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="logo-f">🌿 Green Friend</span>
+    <span>сделано с 💚 для домашних джунглей</span>
+    <span style="margin-left:auto">Растения хранятся в облаке. Напоминания присылает наш общий Telegram-бот — даже когда вкладка закрыта.</span>
+  </div>
+</footer>
+
+<!-- модалка вида -->
+<div class="modal" id="modal" role="dialog" aria-modal="true">
+  <div class="modal-back" data-close></div>
+  <div class="modal-card">
+    <button class="mclose" data-close aria-label="Закрыть">✕</button>
+    <span class="memoji" id="mEmoji"></span>
+    <h3 id="mName"></h3>
+    <div class="platin" id="mLatin"></div>
+    <dl class="mrows" id="mRows"></dl>
+    <div class="tip" id="mTip"></div>
+    <button class="btn" style="margin-top:22px;width:100%" id="mAdd"></button>
+  </div>
+</div>
+
+<!-- модалка новоселья -->
+<div class="modal" id="hsModal" role="dialog" aria-modal="true">
+  <div class="modal-back" data-close></div>
+  <div class="modal-card" style="max-width:440px">
+    <button class="mclose" data-close aria-label="Закрыть">✕</button>
+    <span class="memoji" id="hsEmoji">🪴</span>
+    <h3 id="hsTitle">Новоселье!</h3>
+    <p class="platin" style="font-style:normal;margin-top:4px">Куда поставим растение?</p>
+    <div class="aform">
+      <label>Прозвище (необязательно)</label>
+      <input id="hsNick" placeholder="например, Жорик">
+      <label>Комната</label>
+      <input id="hsRoom" list="roomList" placeholder="Гостиная">
+    </div>
+    <button class="btn" style="margin-top:22px;width:100%" id="hsOk">Поселить 🏡</button>
+  </div>
+</div>
+
+<!-- модалка входа -->
+<div class="modal" id="authModal" role="dialog" aria-modal="true">
+  <div class="modal-back" data-close></div>
+  <div class="modal-card" style="max-width:420px">
+    <button class="mclose" data-close aria-label="Закрыть">✕</button>
+    <span class="memoji">☁️</span>
+    <h3>Аккаунт Green Friend</h3>
+    <p class="platin" style="font-style:normal;margin-top:4px">Растения сохранятся в облаке и не пропадут при смене устройства.</p>
+    <div class="atabs">
+      <button class="atab on" id="tabIn">Вход</button>
+      <button class="atab" id="tabUp">Регистрация</button>
+    </div>
+    <div class="aform">
+      <label>Email</label>
+      <input id="aEmail" type="email" autocomplete="email" placeholder="you@mail.ru">
+      <label>Пароль (мин. 6 символов)</label>
+      <input id="aPass" type="password" autocomplete="current-password" placeholder="••••••">
+    </div>
+    <button class="btn" style="margin-top:20px;width:100%" id="aSubmit">Войти</button>
+    <div class="amsg" id="aMsg"></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   ⚙️ НАСТРОЙКИ ВЛАДЕЛЬЦА САЙТА (заполнить один раз)
+   1. Создайте бота в @BotFather и проект на supabase.com
+   2. Выполните шаги из панели «Для владельца сайта» на странице
+   3. Впишите три значения ниже — и панель настройки исчезнет
+      у всех пользователей навсегда.
+   ═══════════════════════════════════════════════════════════════ */
+const OWNER_CONFIG = {
+  url: "https://tvbefxxeprwxwmqjqpeo.supabase.co",      // https://xxxx.supabase.co
+  key: "sb_publishable_mO8zoKCRgpgb5GA5oCbgeQ_TsrKy0kK",      // anon (public) key — Settings → API
+  botName: "green_friend_care_bot"   // юзернейм общего бота без @, например green_friend_bot
+};
+
+/* ============ КАТАЛОГ: 50 растений ============ */
+const PLANTS=[
+{id:'monstera',name:'Монстера деликатесная',latin:'Monstera deliciosa',emoji:'🌿',water:7,feed:14,repot:24,diff:2,tags:[],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'Протирайте листья и дайте опору. Дырки в листьях — норма для взрослых растений.'},
+{id:'zamioculcas',name:'Замиокулькас',latin:'Zamioculcas zamiifolia',emoji:'💵',water:14,feed:30,repot:36,diff:1,tags:['easy','shade'],light:'От тени до рассеянного',hum:'Низкая',temp:'18–26 °C',toxic:true,tip:'Поливайте после полной просушки грунта. Клубень на поверхности — это нормально.'},
+{id:'sansevieria',name:'Сансевиерия',latin:'Sansevieria trifasciata',emoji:'🌾',water:14,feed:30,repot:36,diff:1,tags:['easy','shade'],light:'От тени до яркого света',hum:'Низкая',temp:'16–28 °C',toxic:true,tip:'Лучше недолить, чем перелить. Зимой полив почти не нужен.'},
+{id:'spathiphyllum',name:'Спатифиллум',latin:'Spathiphyllum wallisii',emoji:'🤍',water:4,feed:14,repot:24,diff:2,tags:['bloom','shade'],light:'Полутень',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'Опустил листья — срочно поить. В тесном горшке цветёт охотнее.'},
+{id:'phalaenopsis',name:'Фаленопсис',latin:'Phalaenopsis',emoji:'🦋',water:7,feed:21,repot:24,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'Полив замачиванием на 15 минут. Корни зелёные — рано, серебристые — пора.'},
+{id:'ficus-benj',name:'Фикус Бенджамина',latin:'Ficus benjamina',emoji:'🌳',water:5,feed:14,repot:24,diff:2,tags:[],light:'Яркий, без прямого солнца',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Не любит перестановки и сквозняки — от стресса сбрасывает листья.'},
+{id:'ficus-elastica',name:'Фикус каучуконосный',latin:'Ficus elastica',emoji:'🥬',water:5,feed:14,repot:24,diff:1,tags:['easy'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Протирайте крупные листья и поворачивайте горшок к свету.'},
+{id:'chlorophytum',name:'Хлорофитум',latin:'Chlorophytum comosum',emoji:'🕷️',water:4,feed:14,repot:12,diff:1,tags:['easy','shade','pet'],light:'От тени до яркого',hum:'Умеренная',temp:'15–25 °C',toxic:false,tip:'Чемпион по выживанию. Сухие кончики — сухой воздух или жёсткая вода.'},
+{id:'aloe',name:'Алоэ вера',latin:'Aloe vera',emoji:'🩹',water:14,feed:30,repot:24,diff:1,tags:['easy','succ'],light:'Яркий, можно солнце',hum:'Низкая',temp:'13–25 °C',toxic:true,tip:'Домашний доктор. Зимой любит прохладу и почти без воды.'},
+{id:'crassula',name:'Толстянка',latin:'Crassula ovata',emoji:'🪙',water:12,feed:30,repot:24,diff:1,tags:['easy','succ'],light:'Яркий, солнце',hum:'Низкая',temp:'15–25 °C',toxic:true,tip:'Денежное дерево. Узкий горшок и тяжёлый грунт — ствол будет толще.'},
+{id:'schlumbergera',name:'Декабрист',latin:'Schlumbergera truncata',emoji:'❄️',water:7,feed:30,repot:36,diff:2,tags:['bloom','pet'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–25 °C',toxic:false,tip:'Не двигайте во время бутонов. Прохладная осень закладывает цветы.'},
+{id:'balsam',name:'Бальзамин',latin:'Impatiens walleriana',emoji:'💦',water:3,feed:10,repot:12,diff:2,tags:['bloom','easy'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–25 °C',toxic:true,tip:'«Ванька мокрый»: после полива на листьях выступают капли. Цветёт почти круглый год.'},
+{id:'pelargonium',name:'Пеларгония (герань)',latin:'Pelargonium zonale',emoji:'🌹',water:4,feed:14,repot:12,diff:1,tags:['bloom','easy'],light:'Яркий, солнце',hum:'Умеренная',temp:'15–25 °C',toxic:true,tip:'Бабушкина классика: любит солнце, засуху переносит легче перелива.'},
+{id:'kalanchoe',name:'Каланхоэ',latin:'Kalanchoe blossfeldiana',emoji:'🌼',water:14,feed:30,repot:24,diff:1,tags:['easy','succ','bloom'],light:'Яркий',hum:'Низкая',temp:'15–25 °C',toxic:true,tip:'После цветения срежьте цветоносы и дайте месяц отдыха с редким поливом.'},
+{id:'saintpaulia',name:'Узамбарская фиалка',latin:'Saintpaulia',emoji:'💜',water:5,feed:14,repot:12,diff:2,tags:['bloom','pet'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:false,tip:'Полив в поддон: вода на листьях оставляет пятна. Любит маленькие горшки.'},
+{id:'hibiscus',name:'Гибискус',latin:'Hibiscus rosa-sinensis',emoji:'🌺',water:4,feed:10,repot:12,diff:2,tags:['bloom','pet'],light:'Яркий, солнце',hum:'Умеренная',temp:'18–25 °C',toxic:false,tip:'Чем больше света — тем больше цветов. Весенняя обрезка стимулирует цветение.'},
+{id:'anthurium',name:'Антуриум',latin:'Anthurium andraeanum',emoji:'❤️',water:5,feed:14,repot:24,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'«Мужское счастье». Любит влажный воздух, но цветки не опрыскивать.'},
+{id:'begonia',name:'Бегония рекс',latin:'Begonia rex',emoji:'🎨',water:5,feed:14,repot:12,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–24 °C',toxic:true,tip:'Не опрыскивайте листья — будут пятна. Поливайте по краю горшка.'},
+{id:'tradescantia',name:'Традесканция',latin:'Tradescantia zebrina',emoji:'🦓',water:4,feed:14,repot:12,diff:1,tags:['easy'],light:'Яркий рассеянный',hum:'Умеренная',temp:'16–25 °C',toxic:true,tip:'Быстро израстается — смело черенкуйте, укореняется в воде за неделю.'},
+{id:'hedera',name:'Плющ обыкновенный',latin:'Hedera helix',emoji:'🍃',water:4,feed:14,repot:24,diff:1,tags:['easy','shade'],light:'Свет / полутень',hum:'Умеренная',temp:'16–24 °C',toxic:true,tip:'Зелёные сорта выносят тень, пёстрым нужен свет.'},
+{id:'epipremnum',name:'Эпипремнум (потос)',latin:'Epipremnum aureum',emoji:'💚',water:5,feed:14,repot:24,diff:1,tags:['easy','shade'],light:'Свет / полутень',hum:'Умеренная',temp:'18–25 °C',toxic:true,tip:'Одна из самых неубиваемых лиан. Легко черенкуется и быстро растёт.'},
+{id:'dracaena',name:'Драцена окаймлённая',latin:'Dracaena marginata',emoji:'🐉',water:7,feed:14,repot:24,diff:2,tags:['shade'],light:'Свет / полутень',hum:'Умеренная',temp:'18–25 °C',toxic:true,tip:'Жёлтые нижние листья — естественный рост, а не перелив.'},
+{id:'yucca',name:'Юкка',latin:'Yucca elephantipes',emoji:'🏜️',water:10,feed:30,repot:36,diff:1,tags:['easy'],light:'Яркий, солнце',hum:'Низкая',temp:'15–28 °C',toxic:true,tip:'Зимой нужно светлое прохладное место, иначе листья поникнут.'},
+{id:'schefflera',name:'Шеффлера',latin:'Schefflera arboricola',emoji:'☂️',water:6,feed:14,repot:24,diff:2,tags:['shade'],light:'Свет / полутень',hum:'Умеренная',temp:'16–24 °C',toxic:true,tip:'Листья-зонтики. Не любит жару и сухой воздух у батареи.'},
+{id:'dieffenbachia',name:'Диффенбахия',latin:'Dieffenbachia seguine',emoji:'🐆',water:5,feed:14,repot:24,diff:2,tags:['shade'],light:'Свет / полутень',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Сок ядовит — работайте в перчатках. Старый ствол можно омолодить обрезкой.'},
+{id:'aglaonema',name:'Аглаонема',latin:'Aglaonema commutatum',emoji:'🎀',water:5,feed:14,repot:24,diff:2,tags:['shade'],light:'Полутень',hum:'Умеренная',temp:'18–25 °C',toxic:true,tip:'Розовым сортам нужно больше света, иначе окраска бледнеет.'},
+{id:'calathea',name:'Калатея орбифолия',latin:'Calathea orbifolia',emoji:'🦚',water:4,feed:14,repot:12,diff:3,tags:['shade','pet'],light:'Полутень',hum:'Очень высокая',temp:'18–24 °C',toxic:false,tip:'Только мягкая вода и подальше от батарей. Складывает листья на ночь — норма.'},
+{id:'maranta',name:'Маранта',latin:'Maranta leuconeura',emoji:'🙏',water:4,feed:14,repot:12,diff:2,tags:['shade','pet'],light:'Полутень',hum:'Высокая',temp:'18–24 °C',toxic:false,tip:'«Молитвенное растение»: вечером поднимает листья вверх.'},
+{id:'alocasia',name:'Алоказия',latin:'Alocasia amazonica',emoji:'🐘',water:4,feed:14,repot:12,diff:3,tags:[],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'«Уши слона»: летом растит по крупному листу в месяц. Зимой может спать.'},
+{id:'fittonia',name:'Фиттония',latin:'Fittonia albivenis',emoji:'🩷',water:3,feed:14,repot:12,diff:2,tags:['pet'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–24 °C',toxic:false,tip:'Драматично падает в обморок при засухе и оживает через час после полива.'},
+{id:'coleus',name:'Колеус',latin:'Coleus scutellarioides',emoji:'🌈',water:4,feed:10,repot:12,diff:1,tags:['easy','pet'],light:'Яркий',hum:'Умеренная',temp:'18–25 °C',toxic:false,tip:'Чем ярче свет, тем сочнее окраска. Прищипывайте цветочные стрелки.'},
+{id:'oxalis',name:'Кислица треугольная',latin:'Oxalis triangularis',emoji:'🔺',water:4,feed:14,repot:12,diff:1,tags:['easy','pet'],light:'Яркий рассеянный',hum:'Умеренная',temp:'16–24 °C',toxic:false,tip:'На ночь складывает листья-треугольники, как стая бабочек.'},
+{id:'pilea',name:'Пилея пеперомиевидная',latin:'Pilea peperomioides',emoji:'🥞',water:6,feed:14,repot:12,diff:2,tags:['pet'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:false,tip:'Поворачивайте горшок: листики тянутся к свету. Легко делится детками.'},
+{id:'peperomia',name:'Пеперомия туполистная',latin:'Peperomia obtusifolia',emoji:'🫒',water:7,feed:21,repot:24,diff:2,tags:['pet','shade'],light:'Свет / полутень',hum:'Умеренная',temp:'18–24 °C',toxic:false,tip:'Мясистые листья держат воду — давайте грунту просохнуть.'},
+{id:'hoya',name:'Хойя мясистая',latin:'Hoya carnosa',emoji:'🕯️',water:7,feed:21,repot:36,diff:2,tags:['bloom','pet'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–25 °C',toxic:false,tip:'Не срезайте отцветшие цветоносы — зацветут снова. Не двигайте во время бутонов.'},
+{id:'aspidistra',name:'Аспидистра',latin:'Aspidistra elatior',emoji:'🔩',water:7,feed:30,repot:36,diff:1,tags:['easy','shade','pet'],light:'Тень',hum:'Низкая',temp:'10–25 °C',toxic:false,tip:'«Чугунное растение»: терпит тень, засуху и холод. Рекордсмен неубиваемости.'},
+{id:'nephrolepis',name:'Нефролепис',latin:'Nephrolepis exaltata',emoji:'🪶',water:3,feed:14,repot:12,diff:2,tags:['shade','pet'],light:'Полутень',hum:'Очень высокая',temp:'16–24 °C',toxic:false,tip:'Обожает душ и увлажнитель. Сухой воздух = голые вайи.'},
+{id:'asparagus',name:'Аспарагус',latin:'Asparagus setaceus',emoji:'☁️',water:4,feed:14,repot:12,diff:2,tags:['shade'],light:'Свет / полутень',hum:'Умеренная',temp:'16–24 °C',toxic:true,tip:'Пушистая зелень любит опрыскивание. Ягоды есть нельзя!'},
+{id:'echeveria',name:'Эхеверия',latin:'Echeveria elegans',emoji:'🪷',water:14,feed:30,repot:24,diff:1,tags:['easy','succ'],light:'Прямое солнце',hum:'Низкая',temp:'12–27 °C',toxic:false,tip:'В тени розетка вытягивается и теряет форму. Поливайте строго под корень.'},
+{id:'haworthia',name:'Хавортия полосатая',latin:'Haworthia fasciata',emoji:'💎',water:14,feed:30,repot:24,diff:1,tags:['easy','succ','pet'],light:'Яркий рассеянный',hum:'Низкая',temp:'12–26 °C',toxic:false,tip:'Прозрачные «окна» на листьях помогают ловить свет.'},
+{id:'echinocactus',name:'Эхинокактус',latin:'Echinocactus grusonii',emoji:'🌵',water:21,feed:30,repot:36,diff:1,tags:['easy','succ'],light:'Прямое солнце',hum:'Низкая',temp:'12–30 °C',toxic:false,tip:'Зимой — полная суховка без единой капли.'},
+{id:'euphorbia-milii',name:'Молочай Миля',latin:'Euphorbia milii',emoji:'👑',water:10,feed:30,repot:24,diff:1,tags:['easy','succ','bloom'],light:'Прямое солнце',hum:'Низкая',temp:'15–27 °C',toxic:true,tip:'«Терновый венец» цветёт почти круглый год на солнце. Сок ядовит.'},
+{id:'lithops',name:'Литопсы',latin:'Lithops',emoji:'🪨',water:21,feed:30,repot:36,diff:2,tags:['succ'],light:'Прямое солнце',hum:'Низкая',temp:'12–30 °C',toxic:false,tip:'Живые камни: во время линьки (зима–весна) не поливайте вообще.'},
+{id:'areca',name:'Пальма арека',latin:'Dypsis lutescens',emoji:'🌴',water:5,feed:14,repot:36,diff:2,tags:['pet'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:false,tip:'Сухие кончики = сухой воздух. Не любит, когда тревожат корни.'},
+{id:'fatsia',name:'Фатсия японская',latin:'Fatsia japonica',emoji:'🖐️',water:5,feed:14,repot:24,diff:2,tags:['shade'],light:'Свет / полутень',hum:'Умеренная',temp:'15–22 °C',toxic:true,tip:'Прохладная зимовка делает листья-ладошки крупнее.'},
+{id:'cyclamen',name:'Цикламен персидский',latin:'Cyclamen persicum',emoji:'🌸',water:4,feed:14,repot:12,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Умеренная',temp:'10–18 °C',toxic:true,tip:'Любит холод: при +22 сбрасывает цветы. Поливайте по краю горшка, берегите клубень.'},
+{id:'azalea',name:'Азалия',latin:'Rhododendron simsii',emoji:'🌷',water:4,feed:14,repot:24,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'12–18 °C',toxic:true,tip:'Любит кислую почву и прохладный подоконник.'},
+{id:'gloxinia',name:'Глоксиния',latin:'Sinningia speciosa',emoji:'🔔',water:5,feed:10,repot:12,diff:2,tags:['bloom'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Зимой надземная часть отмирает — храните горшок с клубнем в прохладе.'},
+{id:'poinsettia',name:'Пуансеттия',latin:'Euphorbia pulcherrima',emoji:'🎄',water:4,feed:14,repot:12,diff:3,tags:['bloom'],light:'Яркий',hum:'Умеренная',temp:'16–22 °C',toxic:true,tip:'«Рождественская звезда». После праздников срежьте побеги на треть.'},
+{id:'lemon',name:'Домашний лимон',latin:'Citrus limon',emoji:'🍋',water:5,feed:14,repot:24,diff:2,tags:['bloom','pet'],light:'Яркий, солнце',hum:'Умеренная',temp:'16–25 °C',toxic:false,tip:'Не любит перестановки и сквозняки. Для плодов опылите цветки кисточкой.'}
+];
+const TAGS={easy:'неприхотливое',shade:'для тени',bloom:'цветущее',succ:'суккулент',pet:'пет-френдли'};
+const DLAB={1:'неприхотливое',2:'средний уровень',3:'требует внимания'};
+const TIPS=[
+'Большинство комнатных гибнет от перелива, а не от засухи',
+'Зимой почти все растения пьют реже — проверяйте грунт пальцем на фалангу',
+'Подкормка работает только в сезон роста: с марта по октябрь',
+'Молодые пересаживают каждый год, взрослые — раз в 2–4 года',
+'Отстоянная вода комнатной температуры — золотой стандарт',
+'Дренажные отверстия обязательны. Всегда. Без исключений',
+'Жёлтые нижние листья — часто норма роста, а не болезнь',
+'Опрыскивание не заменяет полив — оно про влажность воздуха',
+'Подключите Telegram в один клик — напоминания будут приходить даже ночью'
+];
+const EMOJI_SET=['🌱','🌿','🍃','🌵','🌴','🌸','🌺','🌼','🌷','🪷','🌹','💐','🍀','🌾','🪻','🪴','🌻','🍋','🌰','🎍','☘️','🌲','🥀','🫚'];
+
+/* ============ СОСТОЯНИЕ ============ */
+const DAY=86400000, LS='gf.data';
+const uid=()=>crypto.randomUUID();
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const defaults=()=>({mine:[],custom:[],log:[],roomFilter:''});
+let state=(()=>{try{const s=JSON.parse(localStorage.getItem(LS));if(s&&s.mine)return Object.assign(defaults(),s)}catch(e){}return defaults()})();
+const saveLocal=()=>localStorage.setItem(LS,JSON.stringify(state));
+const $=s=>document.querySelector(s);
+const P=id=>PLANTS.find(p=>p.id===id);
+const speciesOf=sid=>sid?.startsWith('cus:')?state.custom.find(c=>'cus:'+c.id===sid):P(sid);
+const dayKey=ts=>new Date(ts).toDateString();
+function tasks(m){
+  const now=Date.now();
+  return [
+    {type:'water',emoji:'💧',label:'полить',due:m.lastWater+m.water*DAY,iv:m.water},
+    {type:'feed', emoji:'🧪',label:'подкормить',due:m.lastFeed+m.feed*DAY,iv:m.feed},
+    {type:'repot',emoji:'🪴',label:'пересадить',due:m.lastRepot+m.repot*30*DAY,iv:m.repot*30}
+  ];
+}
+const dl=t=>Math.ceil((t.due-Date.now())/DAY);
+
+/* ============ КОНФИГ И SUPABASE ============ */
+let sb=null, SBUSER=null, CHAT_ID=null, waitingTg=false, tgPollTimer=null;
+function getCfg(){
+  if(OWNER_CONFIG.url&&OWNER_CONFIG.key&&OWNER_CONFIG.botName){
+    return {url:OWNER_CONFIG.url,key:OWNER_CONFIG.key,botName:OWNER_CONFIG.botName.replace(/^@/,''),hardcoded:true};
+  }
+  return {
+    url:localStorage.getItem('gf.sb.url')||'',
+    key:localStorage.getItem('gf.sb.key')||'',
+    botName:(localStorage.getItem('gf.sb.bot')||'').replace(/^@/,''),
+    hardcoded:false
+  };
+}
+function initSb(){
+  sb=null;
+  const c=getCfg();
+  if(c.url&&c.key&&window.supabase){
+    try{sb=window.supabase.createClient(c.url,c.key)}catch(e){sb=null}
+  }
+  if(sb){
+    sb.auth.getSession().then(({data})=>{if(data.session)onLogin(data.session.user,false)});
+    sb.auth.onAuthStateChange(async (ev,sess)=>{
+      if((ev==='SIGNED_IN'||ev==='INITIAL_SESSION')&&sess&&!SBUSER)await onLogin(sess.user,true);
+      if(ev==='SIGNED_OUT'){
+        SBUSER=null;CHAT_ID=null;waitingTg=false;stopPoll();
+        state=JSON.parse(localStorage.getItem(LS)||'null')||defaults();
+        renderAll();toast('Вы вышли — локальный режим 💾','warn');
+      }
+    });
+  }
+  renderOwnerPanel();
+  renderAuthUI();
+}
+function renderOwnerPanel(){
+  const c=getCfg();
+  const panel=$('#ownerPanel');
+  if(c.hardcoded){panel.style.display='none';return}
+  panel.style.display='';
+  $('#cfgStatus').textContent=c.url&&c.key&&c.botName
+    ?'✅ Конфиг сохранён в этом браузере (режим теста). Для раздачи сайта впишите его в OWNER_CONFIG вверху файла.'
+    :'Заполните три поля и сохраните — либо сразу впишите OWNER_CONFIG в начало файла.';
+}
+function renderAuthUI(){
+  const btn=$('#authBtn'),mode=$('#modePill');
+  if(SBUSER){
+    btn.textContent='☁ '+SBUSER.email;btn.title='Нажмите, чтобы выйти';
+    mode.textContent='☁️';mode.title='Облако: данные синхронизированы';
+  }else{
+    btn.textContent='Войти';btn.title='';
+    if(sb){mode.textContent='🔒';mode.title='Облако подключено — войдите, чтобы синхронизировать'}
+    else{mode.textContent='💾';mode.title='Локальный режим: данные хранятся в этом браузере'}
+  }
+}
+$('#btnSbSave').addEventListener('click',()=>{
+  const url=$('#sbUrl').value.trim(),key=$('#sbKey').value.trim(),bot=$('#sbBot').value.trim();
+  if(!url||!key||!bot){toast('Нужны все три поля: URL, ключ и имя бота','err');return}
+  localStorage.setItem('gf.sb.url',url);
+  localStorage.setItem('gf.sb.key',key);
+  localStorage.setItem('gf.sb.bot',bot);
+  initSb();renderTg();toast('Конфиг сохранён ☁️ Теперь можно зарегистрироваться');
+});
+$('#authBtn').addEventListener('click',()=>{
+  if(SBUSER){sb.auth.signOut()}
+  else openAuthModal();
+});
+function openAuthModal(){
+  if(!sb){toast('Облако ещё не настроено владельцем сайта ⚙️','warn');return}
+  $('#aMsg').textContent='';$('#authModal').classList.add('show');
+}
+let authMode='in';
+$('#tabIn').addEventListener('click',()=>setAuthMode('in'));
+$('#tabUp').addEventListener('click',()=>setAuthMode('up'));
+function setAuthMode(m){authMode=m;$('#tabIn').classList.toggle('on',m==='in');$('#tabUp').classList.toggle('on',m==='up');$('#aSubmit').textContent=m==='in'?'Войти':'Создать аккаунт';$('#aMsg').textContent=''}
+$('#aSubmit').addEventListener('click',async()=>{
+  const email=$('#aEmail').value.trim(),pass=$('#aPass').value;
+  if(!email||!pass){$('#aMsg').textContent='Заполните email и пароль';return}
+  $('#aMsg').className='amsg';$('#aMsg').textContent='Секунду…';
+  try{
+    if(authMode==='in'){
+      const {error}=await sb.auth.signInWithPassword({email,password:pass});
+      if(error)throw error;
+      $('#authModal').classList.remove('show');
+    }else{
+      const {data,error}=await sb.auth.signUp({email,password:pass});
+      if(error)throw error;
+      if(!data.session){$('#aMsg').className='amsg good';$('#aMsg').textContent='Проверьте почту — нужно подтвердить адрес ✉️'}
+      else $('#authModal').classList.remove('show');
+    }
+  }catch(e){$('#aMsg').textContent=e.message}
+});
+async function onLogin(user,greet){
+  SBUSER=user;CHAT_ID=null;
+  const [{data:rows,error:e1},{data:crows,error:e2},{data:prof}]=await Promise.all([
+    sb.from('plants').select('*').order('created_at'),
+    sb.from('custom_species').select('*').order('created_at'),
+    sb.from('profiles').select('chat_id').eq('id',user.id).maybeSingle()
+  ]);
+  if(e1||e2){toast('Ошибка БД: владелец сайта ещё не выполнил SQL-скрипт ⚙️','err');renderAuthUI();renderTg();return}
+  CHAT_ID=prof?.chat_id||null;
+  state.custom=(crows||[]).map(r=>({id:r.id,name:r.name,emoji:r.emoji,water:r.water_days,feed:r.feed_days,repot:r.repot_months,light:r.light||'',hum:r.humidity||'',temp:r.temp||'',tip:r.tip||'',toxic:!!r.toxic}));
+  if(!rows.length&&state.mine.length){
+    toast('Переносим локальные растения в облако… ☁️');
+    const up=[];state.custom.forEach(sp=>up.push({id:sp.id,user_id:user.id,name:sp.name,emoji:sp.emoji,water_days:sp.water,feed_days:sp.feed,repot_months:sp.repot,light:sp.light,humidity:sp.hum,temp:sp.temp,tip:sp.tip,toxic:sp.toxic}));
+    if(up.length)await sb.from('custom_species').upsert(up);
+    await sb.from('plants').upsert(state.mine.map(plantToRow));
+  }else{
+    state.mine=(rows||[]).map(rowToPlant);
+  }
+  saveLocal();renderAll();
+  if(greet)toast('Добро пожаловать! Данные синхронизированы ☁️');
+}
+const iso=ts=>new Date(ts).toISOString();
+function plantToRow(m){
+  return {id:m.id,user_id:SBUSER.id,sid:m.sid,name:m.name,emoji:m.emoji,nickname:m.nickname||null,room:m.room||null,
+    water_days:m.water,feed_days:m.feed,repot_months:m.repot,light:m.light,humidity:m.hum,temp:m.temp,tip:m.tip,toxic:m.toxic,
+    last_water:iso(m.lastWater),last_feed:iso(m.lastFeed),last_repot:iso(m.lastRepot),notified:m.notified};
+}
+function rowToPlant(r){
+  return {id:r.id,sid:r.sid,name:r.name,emoji:r.emoji,nickname:r.nickname||'',room:r.room||'',
+    water:r.water_days,feed:r.feed_days,repot:r.repot_months,light:r.light||'',hum:r.humidity||'',temp:r.temp||'',tip:r.tip||'',toxic:!!r.toxic,
+    lastWater:+new Date(r.last_water),lastFeed:+new Date(r.last_feed),lastRepot:+new Date(r.last_repot),notified:r.notified||{}};
+}
+async function persistPlant(m){
+  saveLocal();
+  if(sb&&SBUSER){const {error}=await sb.from('plants').upsert(plantToRow(m));if(error)toast('Синхронизация: '+error.message,'err')}
+}
+async function persistDelete(m){
+  saveLocal();
+  if(sb&&SBUSER){const {error}=await sb.from('plants').delete().eq('id',m.id);if(error)toast('Синхронизация: '+error.message,'err')}
+}
+async function persistCustom(sp){
+  saveLocal();
+  if(sb&&SBUSER){await sb.from('custom_species').upsert({id:sp.id,user_id:SBUSER.id,name:sp.name,emoji:sp.emoji,water_days:sp.water,feed_days:sp.feed,repot_months:sp.repot,light:sp.light,humidity:sp.hum,temp:sp.temp,tip:sp.tip,toxic:sp.toxic})}
+}
+async function persistCustomDelete(id){
+  saveLocal();
+  if(sb&&SBUSER){await sb.from('custom_species').delete().eq('id',id)}
+}
+
+/* ============ TELEGRAM-БОКС ============ */
+function renderTg(){
+  const box=$('#tgBox'),cfg=getCfg();
+  const pill=$('#tgPill');
+  pill.classList.toggle('on',!!CHAT_ID);
+  $('#tgPillTxt').textContent=CHAT_ID?'Telegram подключён':'Telegram не подключён';
+  if(!cfg.url||!cfg.key||!cfg.botName){
+    box.innerHTML=`<div class="tg-state"><span class="bigic">🛠</span><b>Напоминания пока не настроены.</b><span class="sub">Владелец сайта ещё не подключил облако. Инструкция — в панели «Для владельца сайта» ниже.</span></div>`;
+    return;
+  }
+  if(!sb){
+    box.innerHTML=`<div class="tg-state"><span class="bigic">⚠️</span><b>Не удалось подключиться к облаку.</b><span class="sub">Проверьте URL и ключ в настройках.</span></div>`;
+    return;
+  }
+  if(!SBUSER){
+    box.innerHTML=`<div class="tg-state"><span class="bigic">☁️</span><b>Создайте бесплатный аккаунт — и подключите напоминания.</b><span class="sub">Растения сохранятся в облаке, а бот будет напоминать об уходе даже при закрытой вкладке.</span><br><button class="btn" style="margin-top:16px" data-authopen>Создать аккаунт / войти</button></div>`;
+    return;
+  }
+  if(!CHAT_ID){
+    if(waitingTg){
+      box.innerHTML=`<div class="tg-state"><span class="bigic spin">🌱</span><b>Ждём «Start» от вас…</b><span class="sub">Мы открыли бота в Telegram. Нажмите там «Start» — эта карточка станет зелёной автоматически.</span><br><button class="btn" style="margin-top:16px" data-tgcheck>Я нажал Start — проверить ✅</button> <button class="btn-line" data-tgcancel>отмена</button><div class="warn-note" style="margin-top:18px">Прошла уже минута и ничего? Вероятно, бот ещё не развёрнут владельцем сайта.</div></div>`;
+    }else{
+      box.innerHTML=`<div class="tg-state"><span class="bigic">📲</span><b>Подключите Telegram в один клик.</b><span class="sub">Откроется наш бот — нажмите «Start», и напоминания начнут приходить в ваш чат. Без токенов, настроек и регистраций ботов.</span><br><button class="btn" style="margin-top:16px" data-tggo>📲 Подключить Telegram</button></div>`;
+    }
+    return;
+  }
+  box.innerHTML=`<div class="tg-state"><span class="bigic">✅</span><b>Telegram подключён!</b><span class="sub">Напоминания о поливе, подкормке и пересадке будут приходить в ваш чат — даже когда вкладка закрыта. Хотите посмотреть, как они выглядят? Отправьте боту команду /test.</span><br><button class="btn-line" style="margin-top:16px" data-tgoff>Отключить</button></div>`;
+}
+$('#tgBox').addEventListener('click',async e=>{
+  if(e.target.closest('[data-authopen]')){openAuthModal();return}
+  if(e.target.closest('[data-tggo]')){
+    const cfg=getCfg();
+    window.open(`https://t.me/${cfg.botName}?start=${SBUSER.id}`,'_blank');
+    waitingTg=true;renderTg();startPoll();return;
+  }
+  if(e.target.closest('[data-tgcheck]')){
+    const ok=await checkChat();
+    if(!ok)toast('Пока не видим. Нажмите «Start» в боте 🤖','warn');
+    return;
+  }
+  if(e.target.closest('[data-tgcancel]')){waitingTg=false;stopPoll();renderTg();return}
+  if(e.target.closest('[data-tgoff]')){
+    await sb.from('profiles').update({chat_id:null}).eq('id',SBUSER.id);
+    CHAT_ID=null;renderTg();toast('Telegram отключён','warn');return;
+  }
+});
+function startPoll(){
+  stopPoll();let n=0;
+  tgPollTimer=setInterval(async()=>{
+    n++;
+    if(await checkChat()||n>40)stopPoll();
+  },3000);
+}
+function stopPoll(){if(tgPollTimer){clearInterval(tgPollTimer);tgPollTimer=null}}
+async function checkChat(){
+  if(!sb||!SBUSER)return false;
+  const {data}=await sb.from('profiles').select('chat_id').eq('id',SBUSER.id).maybeSingle();
+  if(data?.chat_id){
+    CHAT_ID=data.chat_id;waitingTg=false;stopPoll();
+    renderTg();toast('Telegram подключён! Напоминания будут приходить в чат 🎉');
+    return true;
+  }
+  return false;
+}
+
+/* ============ МОИ РАСТЕНИЯ ============ */
+function barHtml(t){
+  const d=dl(t);
+  const pct=Math.min(100,Math.max(4,(Date.now()-(t.due-t.iv*DAY))/(t.iv*DAY)*100));
+  const cls=d<0?'bad':d<=1?'warn':'';
+  const lab=d<0?`просрочено ${-d} дн.`:d===0?'сегодня!':`через ${d} дн.`;
+  return `<div class="bar"><div class="bar-l"><span>${t.emoji} ${t.type==='water'?'Полив':'Подкормка'}</span><span>${lab}</span></div><div class="track"><div class="fill ${cls}" style="width:${pct}%"></div></div></div>`;
+}
+function renderMine(){
+  const box=$('#mineGrid'),empty=$('#mineEmpty');
+  $('#mineMeta').textContent=state.mine.length?`${state.mine.length} шт. на подоконнике`:'пока пусто';
+  const rooms=[...new Set(state.mine.map(m=>m.room).filter(Boolean))];
+  $('#roomChips').innerHTML=state.mine.length>1?['',...rooms].map(r=>`<button class="rchip ${state.roomFilter===r?'on':''}" data-rf="${esc(r)}">${r?'🚪 '+esc(r):'Все комнаты'}</button>`).join(''):'';
+  let list=state.mine;
+  if(state.roomFilter)list=list.filter(m=>m.room===state.roomFilter);
+  if(!state.mine.length){box.style.display='none';box.innerHTML='';empty.style.display='block';return}
+  empty.style.display='none';box.style.display='grid';
+  if(!list.length){box.innerHTML=`<div class="empty" style="display:block;grid-column:1/-1"><p>В комнате «${esc(state.roomFilter)}» растений нет.</p></div>`;return}
+  box.innerHTML=list.map(m=>{
+    const i=state.mine.indexOf(m);
+    const ts=tasks(m);
+    const worst=ts.reduce((a,b)=>dl(a)<dl(b)?a:b);
+    const st=dl(worst)<0?'bad':dl(worst)<=1?'warn':'ok';
+    const chipTxt=st==='ok'?'💚 всё в порядке':`${worst.emoji} ${worst.label}${dl(worst)<0?' — срочно!':dl(worst)===0?' — сегодня':''}`;
+    const rd=dl(ts[2]);
+    return `<article class="pcard reveal">
+      <div class="pcard-top">
+        <div class="pemoji">${m.emoji}</div>
+        <div class="ptitles"><div class="pname">${esc(m.nickname||m.name)}</div>${m.nickname?`<div class="platin" style="font-style:normal">${esc(m.name)}</div>`:''}</div>
+        <span class="chip ${st}">${chipTxt}</span>
+      </div>
+      <div class="room-row">🚪 <input class="roominp" list="roomList" data-room="${i}" value="${esc(m.room)}" placeholder="выберите комнату"></div>
+      ${barHtml(ts[0])}${barHtml(ts[1])}
+      <div class="repot-line">🪴 Пересадка: ${rd>0?'примерно через '+Math.max(1,Math.round(rd/30))+' мес.':'пора! грунт истощён'}</div>
+      <div class="acts">
+        <button class="act main" data-act="water" data-i="${i}">💧 Полить</button>
+        <button class="act" data-act="feed" data-i="${i}">🧪 Подкормить</button>
+        <button class="act" data-act="repot" data-i="${i}">🪴 Пересадить</button>
+        <button class="del" data-del="${i}">✕ убрать</button>
+      </div>
+      <button class="toggle">Правила ухода ▾</button>
+      <div class="care"><div>
+        <dl>
+          ${m.light?`<dt>☀️ Свет</dt><dd>${esc(m.light)}</dd>`:''}
+          ${m.hum?`<dt>💦 Влажность</dt><dd>${esc(m.hum)}</dd>`:''}
+          ${m.temp?`<dt>🌡 Температура</dt><dd>${esc(m.temp)}</dd>`:''}
+          <dt>💧 Полив</dt><dd>раз в ${m.water} дн.</dd>
+          <dt>🧪 Подкормка</dt><dd>раз в ${m.feed} дн.</dd>
+          <dt>🪴 Пересадка</dt><dd>раз в ${m.repot} мес.</dd>
+          <dt>🐾 Питомцы</dt><dd>${m.toxic?'токсично — держите подальше':'безопасно для кошек и собак'}</dd>
+        </dl>
+        ${m.tip?`<div class="tip">💡 ${esc(m.tip)}</div>`:''}
+      </div></div>
+    </article>`;
+  }).join('');
+  observeReveals();
+}
+$('#roomChips').addEventListener('click',e=>{
+  const b=e.target.closest('[data-rf]');if(!b)return;
+  state.roomFilter=b.dataset.rf;renderMine();
+});
+$('#mineGrid').addEventListener('change',e=>{
+  const r=e.target.closest('[data-room]');if(!r)return;
+  const m=state.mine[+r.dataset.room];
+  m.room=r.value.trim();persistPlant(m);renderCalendar();
+  toast(`Комната обновлена: ${m.room} 🚪`);
+});
+$('#mineGrid').addEventListener('click',e=>{
+  const a=e.target.closest('[data-act]');
+  if(a){
+    const m=state.mine[+a.dataset.i];
+    const map={water:'lastWater',feed:'lastFeed',repot:'lastRepot'};
+    const done={water:'полито 💧',feed:'подкормлено 🧪',repot:'пересажено 🪴'};
+    m[map[a.dataset.act]]=Date.now();
+    m.notified[a.dataset.act]=0;
+    persistPlant(m);
+    burst(a,a.dataset.act==='water'?'💧':a.dataset.act==='feed'?'✨':'🌱');
+    setTimeout(()=>{renderAll();toast(`${m.emoji} ${m.nickname||m.name}: ${done[a.dataset.act]}`)},260);
+    return;
+  }
+  const d=e.target.closest('[data-del]');
+  if(d){
+    if(d.dataset.arm){
+      const m=state.mine[+d.dataset.i];
+      state.mine.splice(+d.dataset.i,1);persistDelete(m);renderAll();
+      toast(`${m.name} убрано из дома 🍂`);
+    }else{
+      d.textContent='точно убрать?';d.dataset.arm='1';d.classList.add('arm');
+      setTimeout(()=>{if(d.isConnected){d.textContent='✕ убрать';delete d.dataset.arm;d.classList.remove('arm')}},2500);
+    }
+    return;
+  }
+  const t=e.target.closest('.toggle');
+  if(t){const c=t.closest('.pcard');c.classList.toggle('open');t.textContent=c.classList.contains('open')?'Свернуть ▴':'Правила ухода ▾'}
+});
+function burst(btn,emoji){
+  for(let k=0;k<5;k++){
+    const s=document.createElement('span');
+    s.className='burst';s.textContent=emoji;
+    s.style.setProperty('--dx',(Math.random()*44-22)+'px');
+    s.style.animationDelay=(k*0.05)+'s';
+    btn.appendChild(s);setTimeout(()=>s.remove(),800);
+  }
+}
+
+/* ============ НОВОСЕЛЬЕ ============ */
+let pendingSid=null;
+function startHousewarming(sid){
+  pendingSid=sid;
+  const sp=speciesOf(sid);
+  $('#hsEmoji').textContent=sp?sp.emoji:'🪴';
+  $('#hsTitle').textContent=`Новоселье: ${sp?sp.name:''}`;
+  $('#hsNick').value='';$('#hsRoom').value='';
+  $('#hsModal').classList.add('show');
+  setTimeout(()=>$('#hsRoom').focus(),60);
+}
+$('#hsOk').addEventListener('click',()=>{
+  if(!pendingSid)return;
+  const sp=speciesOf(pendingSid);if(!sp){toast('Вид не найден','err');return}
+  const now=Date.now();
+  const m={id:uid(),sid:pendingSid,name:sp.name,emoji:sp.emoji,water:sp.water,feed:sp.feed,repot:sp.repot,
+    light:sp.light||'',hum:sp.hum||'',temp:sp.temp||'',tip:sp.tip||'',toxic:!!sp.toxic,
+    nickname:$('#hsNick').value.trim(),room:$('#hsRoom').value.trim(),
+    lastWater:now,lastFeed:now,lastRepot:now,notified:{water:0,feed:0,repot:0}};
+  state.mine.push(m);persistPlant(m);
+  $('#hsModal').classList.remove('show');
+  renderAll();
+  toast(`${m.emoji} ${m.nickname||m.name} теперь живёт у вас дома 🏡`);
+});
+
+/* ============ КАТАЛОГ ============ */
+const FILTERS=[['all','Все'],['easy','Неприхотливые'],['shade','Для тени'],['bloom','Цветущие'],['succ','Суккуленты'],['pet','Пет-френдли'],['custom','🛠 Свои']];
+let curFilter='all', curSearch='';
+$('#filters').innerHTML=FILTERS.map(([v,l])=>`<button class="fchip ${v==='all'?'on':''}" data-f="${v}">${l}</button>`).join('');
+$('#filters').addEventListener('click',e=>{
+  const b=e.target.closest('[data-f]');if(!b)return;
+  curFilter=b.dataset.f;
+  document.querySelectorAll('.fchip').forEach(x=>x.classList.toggle('on',x===b));
+  renderCatalog();
+});
+$('#catSearch').addEventListener('input',e=>{curSearch=e.target.value.trim().toLowerCase();renderCatalog()});
+function dots(n){let h='';for(let i=1;i<=3;i++)h+=`<span class="dot ${i<=n?'d'+n:''}"></span>`;return h}
+function renderCatalog(){
+  let list;
+  if(curFilter==='custom')list=state.custom.map(c=>({...c,sid:'cus:'+c.id,diff:2,tags:[],custom:true}));
+  else list=PLANTS.filter(p=>curFilter==='all'?true:curFilter==='pet'?(!p.toxic):p.tags.includes(curFilter));
+  if(curSearch)list=list.filter(p=>(p.name+' '+(p.latin||'')).toLowerCase().includes(curSearch));
+  if(!list.length){
+    $('#catGrid').innerHTML=curFilter==='custom'
+      ?'<div class="empty" style="display:block;grid-column:1/-1"><span class="big">🛠</span><p>Своих карточек пока нет — соберите первую прямо над каталогом.</p></div>'
+      :'<div class="empty" style="display:block;grid-column:1/-1"><span class="big">🔍</span><p>Ничего не нашлось. Попробуйте другой запрос — или соберите свою карточку!</p></div>';
+    return;
+  }
+  $('#catGrid').innerHTML=list.map((p,idx)=>{
+    const sid=p.custom?'cus:'+p.id:p.id;
+    const inHome=state.mine.some(m=>m.sid===sid);
+    return `<article class="ccard reveal" data-open="${sid}" style="transition-delay:${(idx%8)*40}ms">
+      ${p.custom?`<div class="c-tools"><button data-cedit="${p.id}" title="Редактировать">✏️</button><button data-cdel="${p.id}" title="Удалить">🗑</button></div>`:''}
+      <div class="cemoji">${p.emoji}</div>
+      <div><div class="cname">${esc(p.name)}</div><div class="platin">${esc(p.latin||'своя карточка')}</div></div>
+      <div class="dots">${dots(p.diff)}<span class="dlabel">${DLAB[p.diff]}</span></div>
+      <div class="cmeta">💧 раз в ${p.water} дн. · 🧪 раз в ${p.feed} дн.<br>🪴 раз в ${p.repot} мес.${p.light?` · ${esc(p.light.toLowerCase())}`:''}</div>
+      <div class="ctags">${p.custom?'<span class="tg-tag mine-tag">🛠 своя</span>':''}${(p.tags||[]).map(t=>`<span class="tg-tag">${TAGS[t]}</span>`).join('')}${p.toxic?'<span class="tg-tag tox">⚠ токсично</span>':''}</div>
+      <button class="addbtn" data-add="${sid}" ${inHome?'disabled':''}>${inHome?'✓ Уже дома':'Взять домой +'}</button>
+    </article>`;
+  }).join('');
+  observeReveals();
+}
+$('#catGrid').addEventListener('click',e=>{
+  const add=e.target.closest('[data-add]');
+  if(add){e.stopPropagation();startHousewarming(add.dataset.add);return}
+  const ed=e.target.closest('[data-cedit]');
+  if(ed){e.stopPropagation();openBuilder(ed.dataset.cedit);return}
+  const del=e.target.closest('[data-cdel]');
+  if(del){e.stopPropagation();
+    if(del.dataset.arm){
+      const id=del.dataset.cdel;
+      state.custom=state.custom.filter(c=>c.id!==id);
+      persistCustomDelete(id);renderCatalog();toast('Карточка удалена 🗑');
+    }else{del.textContent='❗';del.classList.add('arm');del.dataset.arm='1';
+      setTimeout(()=>{if(del.isConnected){del.textContent='🗑';delete del.dataset.arm;del.classList.remove('arm')}},2500);}
+    return}
+  const card=e.target.closest('[data-open]');
+  if(card)openModal(card.dataset.open);
+});
+function openModal(sid){
+  const p=speciesOf(sid);if(!p)return;
+  const inHome=state.mine.some(m=>m.sid===sid);
+  $('#mEmoji').textContent=p.emoji;
+  $('#mName').textContent=p.name;
+  $('#mLatin').textContent=p.latin||'собственная карточка Green Friend';
+  $('#mRows').innerHTML=[
+    ['💧 Полив',`раз в ${p.water} дн.`],
+    ['🧪 Подкормка',`раз в ${p.feed} дн. (март–октябрь)`],
+    ['🪴 Пересадка',`раз в ${p.repot} мес., весной`],
+    ...(p.light?[['☀️ Свет',p.light]]:[]),
+    ...(p.hum?[['💦 Влажность',p.hum]]:[]),
+    ...(p.temp?[['🌡 Температура',p.temp]]:[]),
+    ['Сложность',DLAB[p.diff||2]],
+    ['🐾 Питомцы',p.toxic?'⚠️ токсично при поедании':'✅ безопасно']
+  ].map(([a,b])=>`<dt>${a}</dt><dd>${esc(b)}</dd>`).join('');
+  $('#mTip').textContent='💡 '+(p.tip||'Наблюдайте за растением — оно само подскажет, чего хочет.');
+  const btn=$('#mAdd');
+  btn.dataset.add=sid;btn.disabled=inHome;
+  btn.textContent=inHome?'✓ Уже дома':'Взять домой +';
+  $('#modal').classList.add('show');
+}
+$('#mAdd').addEventListener('click',e=>{
+  $('#modal').classList.remove('show');
+  startHousewarming(e.target.dataset.add);
+});
+
+/* ============ КОНСТРУКТОР КАРТОЧКИ ============ */
+$('#bEmj').innerHTML=EMOJI_SET.map(e=>`<button type="button">${e}</button>`).join('')+`<input id="bEmojiCustom" maxlength="4" placeholder="или">`;
+let selEmoji='🌿';
+function setEmoji(e){selEmoji=e;document.querySelectorAll('#bEmj button').forEach(b=>b.classList.toggle('sel',b.textContent===e))}
+$('#bEmj').addEventListener('click',e=>{const b=e.target.closest('button');if(b){setEmoji(b.textContent);$('#bEmojiCustom').value=''}});
+$('#bEmojiCustom').addEventListener('input',e=>{if(e.target.value)setEmoji(e.target.value.trim())});
+$('#builderToggle').addEventListener('click',()=>{
+  $('#builder').classList.toggle('open');
+  $('#builderToggle').classList.toggle('open');
+});
+let editCustomId=null;
+function openBuilder(id){
+  editCustomId=id||null;
+  const sp=id?state.custom.find(c=>c.id===id):null;
+  $('#builderTitle').textContent=sp?'Редактирование карточки':'Новая карточка растения';
+  $('#bName').value=sp?sp.name:'';
+  $('#bWater').value=sp?sp.water:7;$('#bFeed').value=sp?sp.feed:14;$('#bRepot').value=sp?sp.repot:24;
+  $('#bLight').value=sp&&sp.light?sp.light:'Яркий рассеянный';
+  $('#bHum').value=sp&&sp.hum?sp.hum:'Умеренная';
+  $('#bTemp').value=sp?sp.temp:'';$('#bTip').value=sp?sp.tip:'';$('#bToxic').checked=sp?sp.toxic:false;
+  setEmoji(sp?sp.emoji:'🌿');$('#bEmojiCustom').value='';
+  $('#bSave').textContent=sp?'Сохранить изменения':'Поселить в каталог и домой 🏡';
+  $('#builder').classList.add('open');$('#builderToggle').classList.add('open');
+  $('#builder').scrollIntoView({behavior:'smooth',block:'start'});
+}
+$('#bCancel').addEventListener('click',()=>{
+  $('#builder').classList.remove('open');$('#builderToggle').classList.remove('open');editCustomId=null;
+});
+$('#bSave').addEventListener('click',()=>{
+  const name=$('#bName').value.trim();
+  const water=+$('#bWater').value,feed=+$('#bFeed').value,repot=+$('#bRepot').value;
+  if(!name){toast('Дайте растению название ✍️','err');$('#bName').focus();return}
+  if(!(water>0&&feed>0&&repot>0)){toast('Интервалы должны быть больше нуля','err');return}
+  if(editCustomId){
+    const sp=state.custom.find(c=>c.id===editCustomId);
+    Object.assign(sp,{name,emoji:selEmoji,water,feed,repot,light:$('#bLight').value,hum:$('#bHum').value,temp:$('#bTemp').value.trim(),tip:$('#bTip').value.trim(),toxic:$('#bToxic').checked});
+    persistCustom(sp);
+    toast('Карточка обновлена ✅');
+    $('#builder').classList.remove('open');$('#builderToggle').classList.remove('open');editCustomId=null;
+    renderCatalog();
+    return;
+  }
+  const sp={id:uid(),name,emoji:selEmoji,water,feed,repot,light:$('#bLight').value,hum:$('#bHum').value,temp:$('#bTemp').value.trim(),tip:$('#bTip').value.trim(),toxic:$('#bToxic').checked};
+  state.custom.push(sp);persistCustom(sp);
+  $('#builder').classList.remove('open');$('#builderToggle').classList.remove('open');
+  renderCatalog();
+  toast(`Карточка «${name}» готова! Куда её поставим? 🏡`);
+  startHousewarming('cus:'+sp.id);
+});
+
+/* ============ ПЛАН ============ */
+function renderCalendar(){
+  const t0=new Date();t0.setHours(0,0,0,0);
+  let html='',total=0;
+  for(let i=0;i<14;i++){
+    const d=new Date(+t0+i*DAY);const chips=[];
+    state.mine.forEach(m=>{
+      tasks(m).forEach(t=>{
+        const td=new Date(t.due);td.setHours(0,0,0,0);
+        if(+td===+d){total++;chips.push(`<span class="tchip ${ {water:'tw',feed:'tf',repot:'tr'}[t.type] }">${t.emoji} ${esc(m.nickname||m.name)}</span>`)}
+      });
+    });
+    html+=`<div class="day ${i===0?'today':''}"><div class="wd">${d.toLocaleDateString('ru-RU',{weekday:'short'})}${i===0?' · сегодня':''}</div><div class="dt">${d.getDate()}</div>${chips.slice(0,4).join('')}${chips.length>4?`<span class="more">ещё ${chips.length-4}…</span>`:''}${chips.length===0?'<span class="free">свободный день</span>':''}</div>`;
+  }
+  $('#days').innerHTML=html;
+  $('#planMeta').textContent=total?`${total} задач за 14 дней`:'задач нет — можно выдохнуть';
+}
+
+/* ============ ШАПКА И ГЕРОЙ ============ */
+function updateHeader(){
+  const today=dayKey(Date.now());
+  let todayCount=0,weekCount=0,soon=null;
+  const now=Date.now();
+  state.mine.forEach(m=>tasks(m).forEach(t=>{
+    if(dayKey(t.due)===today)todayCount++;
+    if(t.due<now+7*DAY)weekCount++;
+    if(!soon||t.due<soon.due)soon=t;
+  }));
+  const b=$('#todayBadge');
+  b.hidden=!todayCount;
+  b.textContent=todayCount===1?'1 задача сегодня':todayCount+' задач сегодня';
+  $('#stMine').textContent=state.mine.length;
+  $('#stWeek').textContent=weekCount;
+  $('#stNext').textContent=!state.mine.length?'—':dl(soon)<0?'срочно!':dl(soon)===0?'сегодня':`через ${dl(soon)} дн.`;
+}
+function renderAll(){renderMine();renderCatalog();renderCalendar();updateHeader();renderLog();renderAuthUI();renderTg()}
+
+/* ============ НАПОМИНАНИЯ (вкладка открыта) ============ */
+function collectDue(){
+  const now=Date.now(),res=[];
+  state.mine.forEach(m=>{
+    tasks(m).forEach(t=>{
+      if(t.due<=now&&m.notified[t.type]!==dayKey(t.due))res.push({m,t,key:dayKey(t.due)});
+    });
+  });
+  return res;
+}
+function checkReminders(silent){
+  const due=collectDue();
+  if(!due.length){if(!silent)toast('Сейчас всё сделано — напоминать не о чем 🌿');return}
+  due.forEach(d=>d.m.notified[d.t.type]=d.key);
+  saveLocal();
+  addLog(due.map(d=>`${d.t.emoji} ${d.m.nickname||d.m.name}${d.m.room?' ('+d.m.room+')':''} — ${d.t.label}`).join(', '));
+  if('Notification' in window&&Notification.permission==='granted'){
+    try{new Notification('Green Friend 🌿',{body:due.map(d=>`${d.t.emoji} ${d.m.nickname||d.m.name} — ${d.t.label}`).join('\n')})}catch(e){}
+  }
+  if(!silent){
+    if(CHAT_ID)toast('Есть задачи по уходу — Telegram напомнит по расписанию 🕐');
+    else toast('Есть задачи по уходу! Подключите Telegram в разделе 04 📲','warn');
+  }
+  renderMine();updateHeader();
+}
+$('#btnCheck').addEventListener('click',()=>checkReminders(false));
+$('#btnBrowser').addEventListener('click',async()=>{
+  if(!('Notification' in window)){toast('Браузер не поддерживает уведомления','err');return}
+  const p=await Notification.requestPermission();
+  toast(p==='granted'?'Браузерные уведомления включены 🔔':'Разрешение не выдано',p==='granted'?'':'warn');
+});
+function addLog(text){
+  state.log.unshift({t:Date.now(),text});
+  state.log=state.log.slice(0,12);saveLocal();renderLog();
+}
+function renderLog(){
+  const ul=$('#logList');
+  if(!state.log.length){ul.innerHTML='<li style="color:#7FA97F">Пока пусто 🌱</li>';return}
+  ul.innerHTML=state.log.map(l=>{
+    const d=new Date(l.t);
+    return `<li><time>${d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})} · ${d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})}</time>${esc(l.text)}</li>`;
+  }).join('');
+}
+
+/* ============ ТОСТЫ, ДЕКОР ============ */
+function toast(text,type){
+  const t=document.createElement('div');
+  t.className='toast'+(type?' '+type:'');t.textContent=text;
+  $('#toasts').appendChild(t);
+  setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),320)},3800);
+}
+$('#tickerTrack').innerHTML=(TIPS.map(t=>`<span>✦ ${t}</span>`).join('')).repeat(2);
+$('#heroDate').textContent=new Date().toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+document.querySelectorAll('[data-close]').forEach(x=>x.addEventListener('click',()=>x.closest('.modal').classList.remove('show')));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal.show').forEach(m=>m.classList.remove('show'))});
+document.querySelectorAll('.copybtn').forEach(b=>b.addEventListener('click',e=>{
+  e.preventDefault();
+  navigator.clipboard.writeText(document.getElementById(b.dataset.copy).textContent)
+    .then(()=>toast('Скопировано в буфер обмена 📋'));
+}));
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.1});
+function observeReveals(){document.querySelectorAll('.reveal:not(.in)').forEach(el=>io.observe(el))}
+
+/* ============ СТАРТ ============ */
+const _c=getCfg();
+$('#sbUrl').value=_c.url;$('#sbKey').value=_c.key;$('#sbBot').value=_c.botName;
+renderAll();
+observeReveals();
+initSb();
+renderTg();
+setTimeout(()=>checkReminders(true),1500);
+setInterval(()=>checkReminders(true),30000);
+</script>
+</body>
+</html>
