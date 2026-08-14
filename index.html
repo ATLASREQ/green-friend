@@ -347,7 +347,7 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
       <div class="hero-copy reveal in">
         <div class="eyebrow">🪴 Green Friend <span class="sep">✦</span> напоминания в Telegram 24/7 <span class="sep">✦</span> <span id="heroDate"></span></div>
         <h1>Поливай <span class="hl">вовремя</span>.<br>Удобряй <span class="out">с умом</span>.</h1>
-        <p class="lede">Выбери растения, которые живут у тебя дома — из 50 популярных видов или собери свою карточку. Green Friend составит план ухода и напомнит в Telegram про полив, подкормку и пересадку — даже когда вкладка закрыта.</p>
+        <p class="lede">Выбери растения, которые живут у тебя дома — из 55 популярных видов или собери свою карточку. Green Friend составит план ухода и напомнит в Telegram про полив, подкормку и пересадку — даже когда вкладка закрыта.</p>
         <div class="cta">
           <a class="btn" href="#catalog">Выбрать растения ↓</a>
           <a class="btn-ghost" href="#tg">📲 Подключить Telegram</a>
@@ -378,7 +378,7 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
       <div class="roomchips" id="roomChips"></div>
       <div class="empty" id="mineEmpty">
         <span class="big">🪴</span>
-        <p>На подоконнике пока пусто. Загляните в каталог — там 50 популярных растений с честными правилами ухода. Не нашли своё? Соберите карточку сами.</p>
+        <p>На подоконнике пока пусто. Загляните в каталог — там 55 популярных растений с честными правилами ухода. Не нашли своё? Соберите карточку сами.</p>
         <a class="btn" href="#catalog">Открыть каталог</a>
       </div>
       <div class="my-grid" id="mineGrid"></div>
@@ -387,7 +387,7 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
 
   <section id="catalog">
     <div class="wrap">
-      <div class="sec-head reveal"><span class="sec-num">02</span><h2>Каталог растений</h2><span class="sec-meta">50 самых популярных в России + свои карточки</span></div>
+      <div class="sec-head reveal"><span class="sec-num">02</span><h2>Каталог растений</h2><span class="sec-meta">55 самых популярных в России + свои карточки</span></div>
 
       <button class="builder-toggle reveal" id="builderToggle">🛠 Не нашли своё растение? Соберите собственную карточку <span class="arr">▾</span></button>
       <div class="builder" id="builder">
@@ -729,15 +729,15 @@ const OWNER_CONFIG = {
   botName: "green_friend_care_bot"   // юзернейм общего бота без @, например green_friend_bot
 };
 
-/* ============ КАТАЛОГ: 50 растений ============ */
+/* ============ КАТАЛОГ: 55 растений ============ */
 const PLANTS=[
 {id:'monstera',name:'Монстера деликатесная',latin:'Monstera deliciosa',emoji:'🌿',water:7,feed:14,repot:24,diff:2,tags:[],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'Протирайте листья и дайте опору. Дырки в листьях — норма для взрослых растений.'},
 {id:'zamioculcas',name:'Замиокулькас',latin:'Zamioculcas zamiifolia',emoji:'💵',water:14,feed:30,repot:36,diff:1,tags:['easy','shade'],light:'От тени до рассеянного',hum:'Низкая',temp:'18–26 °C',toxic:true,tip:'Поливайте после полной просушки грунта. Клубень на поверхности — это нормально.'},
 {id:'sansevieria',name:'Сансевиерия',latin:'Sansevieria trifasciata',emoji:'🌾',water:14,feed:30,repot:36,diff:1,tags:['easy','shade'],light:'От тени до яркого света',hum:'Низкая',temp:'16–28 °C',toxic:true,tip:'Лучше недолить, чем перелить. Зимой полив почти не нужен.'},
 {id:'spathiphyllum',name:'Спатифиллум',latin:'Spathiphyllum wallisii',emoji:'🤍',water:4,feed:14,repot:24,diff:2,tags:['bloom','shade'],light:'Полутень',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'Опустил листья — срочно поить. В тесном горшке цветёт охотнее.'},
-{id:'phalaenopsis',name:'Фаленопсис',latin:'Phalaenopsis',emoji:'🦋',water:7,feed:21,repot:24,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'Полив замачиванием на 15 минут. Корни зелёные — рано, серебристые — пора.'},
-{id:'ficus-benj',name:'Фикус Бенджамина',latin:'Ficus benjamina',emoji:'🌳',water:5,feed:14,repot:24,diff:2,tags:[],light:'Яркий, без прямого солнца',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Не любит перестановки и сквозняки — от стресса сбрасывает листья.'},
-{id:'ficus-elastica',name:'Фикус каучуконосный',latin:'Ficus elastica',emoji:'🥬',water:5,feed:14,repot:24,diff:1,tags:['easy'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Протирайте крупные листья и поворачивайте горшок к свету.'},
+{id:'phalaenopsis',name:'Фаленопсис (орхидея)',latin:'Phalaenopsis',emoji:'🦋',water:7,feed:21,repot:24,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'Полив замачиванием на 15 минут. Корни зелёные — рано, серебристые — пора.'},
+{id:'ficus-benj',name:'Фикус Бенджамина (пёстрый)',latin:'Ficus benjamina',emoji:'🌳',water:5,feed:14,repot:24,diff:2,tags:[],light:'Яркий, без прямого солнца',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Не любит перестановки и сквозняки — от стресса сбрасывает листья.'},
+{id:'ficus-elastica',name:'Фикус каучуконосный (эластика)',latin:'Ficus elastica',emoji:'🥬',water:5,feed:14,repot:24,diff:1,tags:['easy'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Протирайте крупные листья и поворачивайте горшок к свету.'},
 {id:'chlorophytum',name:'Хлорофитум',latin:'Chlorophytum comosum',emoji:'🕷️',water:4,feed:14,repot:12,diff:1,tags:['easy','shade','pet'],light:'От тени до яркого',hum:'Умеренная',temp:'15–25 °C',toxic:false,tip:'Чемпион по выживанию. Сухие кончики — сухой воздух или жёсткая вода.'},
 {id:'aloe',name:'Алоэ вера',latin:'Aloe vera',emoji:'🩹',water:14,feed:30,repot:24,diff:1,tags:['easy','succ'],light:'Яркий, можно солнце',hum:'Низкая',temp:'13–25 °C',toxic:true,tip:'Домашний доктор. Зимой любит прохладу и почти без воды.'},
 {id:'crassula',name:'Толстянка',latin:'Crassula ovata',emoji:'🪙',water:12,feed:30,repot:24,diff:1,tags:['easy','succ'],light:'Яркий, солнце',hum:'Низкая',temp:'15–25 °C',toxic:true,tip:'Денежное дерево. Узкий горшок и тяжёлый грунт — ствол будет толще.'},
@@ -745,7 +745,7 @@ const PLANTS=[
 {id:'balsam',name:'Бальзамин',latin:'Impatiens walleriana',emoji:'💦',water:3,feed:10,repot:12,diff:2,tags:['bloom','easy'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–25 °C',toxic:true,tip:'«Ванька мокрый»: после полива на листьях выступают капли. Цветёт почти круглый год.'},
 {id:'pelargonium',name:'Пеларгония (герань)',latin:'Pelargonium zonale',emoji:'🌹',water:4,feed:14,repot:12,diff:1,tags:['bloom','easy'],light:'Яркий, солнце',hum:'Умеренная',temp:'15–25 °C',toxic:true,tip:'Бабушкина классика: любит солнце, засуху переносит легче перелива.'},
 {id:'kalanchoe',name:'Каланхоэ',latin:'Kalanchoe blossfeldiana',emoji:'🌼',water:14,feed:30,repot:24,diff:1,tags:['easy','succ','bloom'],light:'Яркий',hum:'Низкая',temp:'15–25 °C',toxic:true,tip:'После цветения срежьте цветоносы и дайте месяц отдыха с редким поливом.'},
-{id:'saintpaulia',name:'Узамбарская фиалка',latin:'Saintpaulia',emoji:'💜',water:5,feed:14,repot:12,diff:2,tags:['bloom','pet'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:false,tip:'Полив в поддон: вода на листьях оставляет пятна. Любит маленькие горшки.'},
+{id:'saintpaulia',name:'Фиалка (сенполия)',latin:'Saintpaulia',emoji:'💜',water:5,feed:14,repot:12,diff:2,tags:['bloom','pet'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:false,tip:'Полив в поддон: вода на листьях оставляет пятна. Любит маленькие горшки.'},
 {id:'hibiscus',name:'Гибискус',latin:'Hibiscus rosa-sinensis',emoji:'🌺',water:4,feed:10,repot:12,diff:2,tags:['bloom','pet'],light:'Яркий, солнце',hum:'Умеренная',temp:'18–25 °C',toxic:false,tip:'Чем больше света — тем больше цветов. Весенняя обрезка стимулирует цветение.'},
 {id:'anthurium',name:'Антуриум',latin:'Anthurium andraeanum',emoji:'❤️',water:5,feed:14,repot:24,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'«Мужское счастье». Любит влажный воздух, но цветки не опрыскивать.'},
 {id:'begonia',name:'Бегония рекс',latin:'Begonia rex',emoji:'🎨',water:5,feed:14,repot:12,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–24 °C',toxic:true,tip:'Не опрыскивайте листья — будут пятна. Поливайте по краю горшка.'},
@@ -753,12 +753,13 @@ const PLANTS=[
 {id:'hedera',name:'Плющ обыкновенный',latin:'Hedera helix',emoji:'🍃',water:4,feed:14,repot:24,diff:1,tags:['easy','shade'],light:'Свет / полутень',hum:'Умеренная',temp:'16–24 °C',toxic:true,tip:'Зелёные сорта выносят тень, пёстрым нужен свет.'},
 {id:'epipremnum',name:'Эпипремнум (потос)',latin:'Epipremnum aureum',emoji:'💚',water:5,feed:14,repot:24,diff:1,tags:['easy','shade'],light:'Свет / полутень',hum:'Умеренная',temp:'18–25 °C',toxic:true,tip:'Одна из самых неубиваемых лиан. Легко черенкуется и быстро растёт.'},
 {id:'dracaena',name:'Драцена окаймлённая',latin:'Dracaena marginata',emoji:'🐉',water:7,feed:14,repot:24,diff:2,tags:['shade'],light:'Свет / полутень',hum:'Умеренная',temp:'18–25 °C',toxic:true,tip:'Жёлтые нижние листья — естественный рост, а не перелив.'},
+{id:'dracaena-fragrans',name:'Драцена душистая',latin:'Dracaena fragrans',emoji:'🎋',water:7,feed:14,repot:24,diff:1,tags:['easy','shade'],light:'Свет / полутень',hum:'Умеренная',temp:'18–25 °C',toxic:true,tip:'Широкие листья-«кукуруза»: протирайте их и берегите от сквозняков.'},
 {id:'yucca',name:'Юкка',latin:'Yucca elephantipes',emoji:'🏜️',water:10,feed:30,repot:36,diff:1,tags:['easy'],light:'Яркий, солнце',hum:'Низкая',temp:'15–28 °C',toxic:true,tip:'Зимой нужно светлое прохладное место, иначе листья поникнут.'},
 {id:'schefflera',name:'Шеффлера',latin:'Schefflera arboricola',emoji:'☂️',water:6,feed:14,repot:24,diff:2,tags:['shade'],light:'Свет / полутень',hum:'Умеренная',temp:'16–24 °C',toxic:true,tip:'Листья-зонтики. Не любит жару и сухой воздух у батареи.'},
 {id:'dieffenbachia',name:'Диффенбахия',latin:'Dieffenbachia seguine',emoji:'🐆',water:5,feed:14,repot:24,diff:2,tags:['shade'],light:'Свет / полутень',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Сок ядовит — работайте в перчатках. Старый ствол можно омолодить обрезкой.'},
 {id:'aglaonema',name:'Аглаонема',latin:'Aglaonema commutatum',emoji:'🎀',water:5,feed:14,repot:24,diff:2,tags:['shade'],light:'Полутень',hum:'Умеренная',temp:'18–25 °C',toxic:true,tip:'Розовым сортам нужно больше света, иначе окраска бледнеет.'},
 {id:'calathea',name:'Калатея орбифолия',latin:'Calathea orbifolia',emoji:'🦚',water:4,feed:14,repot:12,diff:3,tags:['shade','pet'],light:'Полутень',hum:'Очень высокая',temp:'18–24 °C',toxic:false,tip:'Только мягкая вода и подальше от батарей. Складывает листья на ночь — норма.'},
-{id:'maranta',name:'Маранта',latin:'Maranta leuconeura',emoji:'🙏',water:4,feed:14,repot:12,diff:2,tags:['shade','pet'],light:'Полутень',hum:'Высокая',temp:'18–24 °C',toxic:false,tip:'«Молитвенное растение»: вечером поднимает листья вверх.'},
+{id:'maranta',name:'Маранта беложильчатая',latin:'Maranta leuconeura',emoji:'🙏',water:4,feed:14,repot:12,diff:2,tags:['shade','pet'],light:'Полутень',hum:'Высокая',temp:'18–24 °C',toxic:false,tip:'«Молитвенное растение»: вечером поднимает листья вверх.'},
 {id:'alocasia',name:'Алоказия',latin:'Alocasia amazonica',emoji:'🐘',water:4,feed:14,repot:12,diff:3,tags:[],light:'Яркий рассеянный',hum:'Высокая',temp:'18–25 °C',toxic:true,tip:'«Уши слона»: летом растит по крупному листу в месяц. Зимой может спать.'},
 {id:'fittonia',name:'Фиттония',latin:'Fittonia albivenis',emoji:'🩷',water:3,feed:14,repot:12,diff:2,tags:['pet'],light:'Яркий рассеянный',hum:'Высокая',temp:'18–24 °C',toxic:false,tip:'Драматично падает в обморок при засухе и оживает через час после полива.'},
 {id:'coleus',name:'Колеус',latin:'Coleus scutellarioides',emoji:'🌈',water:4,feed:10,repot:12,diff:1,tags:['easy','pet'],light:'Яркий',hum:'Умеренная',temp:'18–25 °C',toxic:false,tip:'Чем ярче свет, тем сочнее окраска. Прищипывайте цветочные стрелки.'},
@@ -780,7 +781,11 @@ const PLANTS=[
 {id:'azalea',name:'Азалия',latin:'Rhododendron simsii',emoji:'🌷',water:4,feed:14,repot:24,diff:3,tags:['bloom'],light:'Яркий рассеянный',hum:'Высокая',temp:'12–18 °C',toxic:true,tip:'Любит кислую почву и прохладный подоконник.'},
 {id:'gloxinia',name:'Глоксиния',latin:'Sinningia speciosa',emoji:'🔔',water:5,feed:10,repot:12,diff:2,tags:['bloom'],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–24 °C',toxic:true,tip:'Зимой надземная часть отмирает — храните горшок с клубнем в прохладе.'},
 {id:'poinsettia',name:'Пуансеттия',latin:'Euphorbia pulcherrima',emoji:'🎄',water:4,feed:14,repot:12,diff:3,tags:['bloom'],light:'Яркий',hum:'Умеренная',temp:'16–22 °C',toxic:true,tip:'«Рождественская звезда». После праздников срежьте побеги на треть.'},
-{id:'lemon',name:'Домашний лимон',latin:'Citrus limon',emoji:'🍋',water:5,feed:14,repot:24,diff:2,tags:['bloom','pet'],light:'Яркий, солнце',hum:'Умеренная',temp:'16–25 °C',toxic:false,tip:'Не любит перестановки и сквозняки. Для плодов опылите цветки кисточкой.'}
+{id:'lemon',name:'Домашний лимон',latin:'Citrus limon',emoji:'🍋',water:5,feed:14,repot:24,diff:2,tags:['bloom','pet'],light:'Яркий, солнце',hum:'Умеренная',temp:'16–25 °C',toxic:false,tip:'Не любит перестановки и сквозняки. Для плодов опылите цветки кисточкой.'},
+{id:'mandarin',name:'Мандарин',latin:'Citrus reticulata',emoji:'🍊',water:5,feed:14,repot:24,diff:3,tags:['bloom','pet'],light:'Яркий, солнце',hum:'Умеренная',temp:'16–25 °C',toxic:false,tip:'Как лимон: не любит перестановки. Для плодов нужны прохладная зимовка и досветка.'},
+{id:'avocado',name:'Авокадо',latin:'Persea gratissima',emoji:'🥑',water:5,feed:14,repot:12,diff:2,tags:[],light:'Яркий рассеянный',hum:'Умеренная',temp:'18–25 °C',toxic:true,tip:'Из косточки растёт быстро; прищипните макушку, чтобы ветвилось. Плодов дома обычно не бывает.'},
+{id:'mango',name:'Манго',latin:'Mangifera indica',emoji:'🥭',water:5,feed:14,repot:12,diff:3,tags:[],light:'Яркий, солнце',hum:'Умеренная',temp:'20–28 °C',toxic:true,tip:'Сажайте косточку от полностью спелого плода. Тепло и солнце обязательны, зимой — досветка.'},
+{id:'rose-indoor',name:'Комнатная роза',latin:'Rosa chinensis',emoji:'🏵️',water:3,feed:10,repot:12,diff:3,tags:['bloom','pet'],light:'Яркий, солнце',hum:'Высокая',temp:'15–22 °C',toxic:false,tip:'Не любит жару и сухой воздух у батарей. Зимой досвечивайте и держите в прохладе.'}
 ];
 const TAGS={easy:'неприхотливое',shade:'для тени',bloom:'цветущее',succ:'суккулент',pet:'пет-френдли'};
 const DLAB={1:'неприхотливое',2:'средний уровень',3:'требует внимания'};
@@ -795,13 +800,13 @@ const TIPS=[
 'Опрыскивание не заменяет полив — оно про влажность воздуха',
 'Подключите Telegram в один клик — напоминания будут приходить даже ночью'
 ];
-const EMOJI_SET=['🌱','🌿','🍃','🌵','🌴','🌸','🌺','🌼','🌷','🪷','🌹','💐','🍀','🌾','🪻','🪴','🌻','🍋','🌰','🎍','☘️','🌲','🥀','🫚'];
+const EMOJI_SET=['🌱','','🍃','','🌴','','🌺','','🌷','','🌹','','🍀','','🪻','','🌻','','🌰','🎍','☘️','🌲','🥀',''];
 
 /* ============ СОСТОЯНИЕ ============ */
 const DAY=86400000, LS='gf.data';
 const uid=()=>crypto.randomUUID();
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const defaults=()=>({mine:[],custom:[],log:[],roomFilter:''});
+const defaults=()=>({mine:[],custom:[],log:[],roomFilter:'',deletedIds:[]});
 let state=(()=>{try{const s=JSON.parse(localStorage.getItem(LS));if(s&&s.mine)return Object.assign(defaults(),s)}catch(e){}return defaults()})();
 const saveLocal=()=>localStorage.setItem(LS,JSON.stringify(state));
 const $=s=>document.querySelector(s);
@@ -910,7 +915,7 @@ $('#aSubmit').addEventListener('click',async()=>{
 });
 async function onLogin(user,greet){
   SBUSER=user;CHAT_ID=null;
-  const [{data:rows,error:e1},{data:crows,error:e2},{data:prof}]=await Promise.all([
+  let [{data:rows,error:e1},{data:crows,error:e2},{data:prof}]=await Promise.all([
     sb.from('plants').select('*').order('created_at'),
     sb.from('custom_species').select('*').order('created_at'),
     sb.from('profiles').select('chat_id').eq('id',user.id).maybeSingle()
@@ -918,13 +923,22 @@ async function onLogin(user,greet){
   if(e1||e2){toast('Ошибка БД: владелец сайта ещё не выполнил SQL-скрипт ⚙️','err');renderAuthUI();renderTg();return}
   CHAT_ID=prof?.chat_id||null;
   state.custom=(crows||[]).map(r=>({id:r.id,name:r.name,emoji:r.emoji,water:r.water_days,feed:r.feed_days,repot:r.repot_months,light:r.light||'',hum:r.humidity||'',temp:r.temp||'',tip:r.tip||'',toxic:!!r.toxic}));
-  if(!rows.length&&state.mine.length){
+  // доудаляем из облака растения, удалённые до входа или офлайн
+  if(state.deletedIds&&state.deletedIds.length){
+    await sb.from('plants').delete().in('id',state.deletedIds);
+    rows=(rows||[]).filter(r=>!state.deletedIds.includes(r.id));
+    state.deletedIds=[];
+  }
+  const migKey='gf.migrated.'+user.id;
+  if(!rows.length&&state.mine.length&&!localStorage.getItem(migKey)){
     toast('Переносим локальные растения в облако… ☁️');
     const up=[];state.custom.forEach(sp=>up.push({id:sp.id,user_id:user.id,name:sp.name,emoji:sp.emoji,water_days:sp.water,feed_days:sp.feed,repot_months:sp.repot,light:sp.light,humidity:sp.hum,temp:sp.temp,tip:sp.tip,toxic:sp.toxic}));
     if(up.length)await sb.from('custom_species').upsert(up);
     await sb.from('plants').upsert(state.mine.map(plantToRow));
+    localStorage.setItem(migKey,'1');
   }else{
     state.mine=(rows||[]).map(rowToPlant);
+    localStorage.setItem(migKey,'1');
   }
   saveLocal();renderAll();
   if(greet)toast('Добро пожаловать! Данные синхронизированы ☁️');
@@ -945,8 +959,15 @@ async function persistPlant(m){
   if(sb&&SBUSER){const {error}=await sb.from('plants').upsert(plantToRow(m));if(error)toast('Синхронизация: '+error.message,'err')}
 }
 async function persistDelete(m){
+  if(!state.deletedIds)state.deletedIds=[];
+  state.deletedIds.push(m.id);
+  if(sb&&SBUSER){
+    const {error}=await sb.from('plants').delete().eq('id',m.id);
+    if(error){toast('Не удалось удалить из облака: '+error.message,'err');return false}
+    state.deletedIds=state.deletedIds.filter(x=>x!==m.id);
+  }
   saveLocal();
-  if(sb&&SBUSER){const {error}=await sb.from('plants').delete().eq('id',m.id);if(error)toast('Синхронизация: '+error.message,'err')}
+  return true;
 }
 async function persistCustom(sp){
   saveLocal();
@@ -1089,7 +1110,7 @@ $('#mineGrid').addEventListener('change',e=>{
   m.room=r.value.trim();persistPlant(m);renderCalendar();
   toast(`Комната обновлена: ${m.room} 🚪`);
 });
-$('#mineGrid').addEventListener('click',e=>{
+$('#mineGrid').addEventListener('click',async e=>{
   const a=e.target.closest('[data-act]');
   if(a){
     const m=state.mine[+a.dataset.i];
@@ -1106,8 +1127,8 @@ $('#mineGrid').addEventListener('click',e=>{
   if(d){
     if(d.dataset.arm){
       const m=state.mine[+d.dataset.i];
-      state.mine.splice(+d.dataset.i,1);persistDelete(m);renderAll();
-      toast(`${m.name} убрано из дома 🍂`);
+      const ok=await persistDelete(m);
+      if(ok){state.mine.splice(+d.dataset.i,1);saveLocal();renderAll();toast(`${m.name} убрано из дома 🍂`)}
     }else{
       d.textContent='точно убрать?';d.dataset.arm='1';d.classList.add('arm');
       setTimeout(()=>{if(d.isConnected){d.textContent='✕ убрать';delete d.dataset.arm;d.classList.remove('arm')}},2500);
