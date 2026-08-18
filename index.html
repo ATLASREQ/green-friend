@@ -1263,7 +1263,7 @@ $('#mineGrid').addEventListener('click',async e=>{
     persistPlant(m);
     burst(a,a.dataset.act==='water'?'💧':a.dataset.act==='feed'?'✨':'🌱');
     const done={water:'полито 💧',feed:'подкормлено 🧪',repot:'пересажено 🪴'};
-    setTimeout(()=>{renderAll();toast(`${m.emoji} ${m.nickname||m.name}: ${done[a.dataset.act]}. Следующее напоминание — через ${a.dataset.act==='repot'?m.repot+' мес.':(a.dataset.act==='water'?m.water:m.feed)+' дн. в 20:00`})},260);
+    setTimeout(()=>{renderAll();toast(`${m.emoji} ${m.nickname||m.name}: ${done[a.dataset.act]}. Следующее напоминание — через ${a.dataset.act==='repot'?m.repot+' мес.':(a.dataset.act==='water'?m.water:m.feed)+' дн.'} в 20:00`)},260);
     return;
   }
   const d=e.target.closest('[data-del]');
