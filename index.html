@@ -71,9 +71,10 @@ h1{font-size:clamp(2.1rem,4.6vw,3.85rem);line-height:1.07;font-weight:900;margin
 .btn:disabled{background:#B9C7B4;cursor:default;transform:none;box-shadow:none}
 .btn-ghost{display:inline-flex;align-items:center;gap:9px;background:transparent;color:var(--ink);font:700 15px 'Golos Text';border:2px solid var(--ink);border-radius:16px 5px 16px 5px;padding:13px 22px;cursor:pointer;text-decoration:none;transition:.22s}
 .btn-ghost:hover{background:var(--ink);color:var(--lime);transform:translateY(-2px)}
-.stats{display:flex;gap:38px;flex-wrap:wrap}
+.stats{display:flex;gap:30px;flex-wrap:wrap}
 .stat b{font-family:'Unbounded';font-size:27px;font-weight:700;display:block;color:var(--green-deep)}
 .stat span{font-size:13px;color:var(--ink-soft);font-weight:500}
+.stat.small b{font-size:19px;color:var(--green)}
 
 .scene{position:relative;height:430px;border-radius:34px 12px 34px 12px;background:linear-gradient(180deg,#EDF6DB,#DCEBC2);border:1px solid var(--line);overflow:hidden;box-shadow:0 34px 60px -32px rgba(18,42,25,.4)}
 .scene::before{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(18,42,25,.07),rgba(18,42,25,.07)) 58% 0/2px 100% no-repeat,linear-gradient(rgba(18,42,25,.07),rgba(18,42,25,.07)) 0 42%/100% 2px no-repeat}
@@ -147,14 +148,17 @@ h1{font-size:clamp(2.1rem,4.6vw,3.85rem);line-height:1.07;font-weight:900;margin
 .burst{position:absolute;left:50%;top:0;font-size:15px;pointer-events:none;animation:bpop .7s ease-out forwards}
 @keyframes bpop{to{transform:translate(var(--dx,0),-40px) rotate(20deg);opacity:0}}
 
-.cat-controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
+.collapse{display:grid;grid-template-rows:0fr;transition:grid-template-rows .5s ease}
+.collapse>div{overflow:hidden}
+.collapse.open{grid-template-rows:1fr}
+.cat-controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:22px 0}
 .filters{display:flex;gap:9px;flex-wrap:wrap}
 .fchip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 16px;font:700 13.5px 'Golos Text';cursor:pointer;transition:.2s;color:var(--ink)}
 .fchip:hover{border-color:var(--green);transform:translateY(-2px)}
 .fchip.on{background:var(--green-deep);color:var(--lime);border-color:var(--green-deep)}
 .search{margin-left:auto;border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:9px 18px;font:600 14px 'Golos Text';width:230px;outline:none;transition:.2s;color:var(--ink)}
 .search:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(28,122,68,.12)}
-.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:20px}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(245px,1fr));gap:20px;padding-bottom:6px}
 .ccard{background:#fff;border:1px solid var(--line);border-radius:var(--rl);padding:22px 20px;display:flex;flex-direction:column;gap:10px;transition:.25s;cursor:pointer;position:relative}
 .ccard:hover{transform:translateY(-5px) rotate(-.5deg);box-shadow:0 22px 38px -22px rgba(18,42,25,.42);border-color:#B7D69B}
 .ccard:hover .cemoji{animation:wiggle .6s ease}
@@ -218,10 +222,7 @@ h1{font-size:clamp(2.1rem,4.6vw,3.85rem);line-height:1.07;font-weight:900;margin
 .cloudpanel::after{content:'🌿';position:absolute;right:-26px;bottom:-40px;font-size:210px;opacity:.08;transform:rotate(-8deg);pointer-events:none}
 .cloudpanel h2{color:#fff;font-size:clamp(1.4rem,2.6vw,2rem);margin-bottom:8px}
 .tg-sub{color:#BFE09C;font-size:14.5px;margin-bottom:24px}
-.step{display:flex;gap:15px;margin-bottom:17px}
-.step b{font-family:'Unbounded';color:var(--lime);font-size:19px;min-width:30px;flex:none}
-.step p{font-size:14px;line-height:1.6;color:#CBE3AF}
-.step code,.cloudpanel code{background:#0A2213;border:1px solid #2C5A38;padding:1px 8px;border-radius:6px;color:var(--lime);font-size:12.5px;font-family:ui-monospace,monospace}
+.cloudpanel code{background:#0A2213;border:1px solid #2C5A38;padding:1px 8px;border-radius:6px;color:var(--lime);font-size:12.5px;font-family:ui-monospace,monospace}
 .cloudpanel label{display:block;font-size:12.5px;font-weight:800;margin:15px 0 6px;color:#BFE09C;letter-spacing:.05em;text-transform:uppercase}
 .cloudpanel input{width:100%;background:#0A2213;border:1.5px solid #2C5A38;border-radius:12px;padding:12px 14px;color:#EAF6D8;font:500 14px 'Golos Text';outline:none;transition:.2s}
 .cloudpanel input:focus{border-color:var(--lime);box-shadow:0 0 0 4px rgba(180,231,90,.14)}
@@ -230,11 +231,6 @@ h1{font-size:clamp(2.1rem,4.6vw,3.85rem);line-height:1.07;font-weight:900;margin
 .btn-lime:hover{transform:translateY(-2px);box-shadow:0 14px 26px -12px rgba(180,231,90,.55)}
 .btn-line{background:none;border:1.5px solid #3F7A4E;color:#CFE9B0;font:700 13.5px 'Golos Text';border-radius:14px 5px 14px 5px;padding:12px 18px;cursor:pointer;transition:.2s}
 .btn-line:hover{border-color:var(--lime);color:var(--lime)}
-.tglog{margin-top:28px}
-.tglog h4{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#9CC47E;margin-bottom:10px}
-.tglog ul{list-style:none;max-height:150px;overflow:auto}
-.tglog li{font-size:12.5px;border-bottom:1px dashed #24512F;padding:7px 0;color:#B9D79B}
-.tglog time{color:#7FA97F;margin-right:8px;font-weight:700}
 .warn-note{margin-top:20px;font-size:12.5px;color:#EED98B;border:1px dashed #6B7B34;border-radius:12px;padding:11px 14px;line-height:1.55}
 .tg-state{text-align:center;padding:26px 16px;position:relative;z-index:1}
 .tg-state b{display:block;font-family:'Unbounded';font-size:18px;color:#fff;margin-bottom:10px;line-height:1.35}
@@ -273,6 +269,8 @@ details.code pre{padding:6px 16px 16px;font:12px/1.55 ui-monospace,Menlo,monospa
 .atab.on{background:var(--green);border-color:var(--green);color:#fff}
 .amsg{font-size:13px;color:var(--alert);font-weight:600;min-height:20px;margin-top:12px}
 .amsg.good{color:var(--green)}
+.forgot{background:none;border:none;color:var(--green);font:700 13px 'Golos Text';cursor:pointer;margin-top:14px;text-decoration:underline}
+.forgot:hover{color:#155f35}
 
 .toasts{position:fixed;right:20px;bottom:20px;z-index:200;display:flex;flex-direction:column;gap:10px}
 .toast{background:var(--green-deep);color:#EAF6D8;padding:13px 18px;border-radius:14px 5px 14px 5px;font-size:14px;font-weight:600;box-shadow:0 18px 32px -14px rgba(14,46,27,.55);animation:tin .35s;max-width:340px;border-left:4px solid var(--lime)}
@@ -347,15 +345,17 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
       <div class="hero-copy reveal in">
         <div class="eyebrow">🪴 Green Friend <span class="sep">✦</span> напоминания в Telegram 24/7 <span class="sep">✦</span> <span id="heroDate"></span></div>
         <h1>Поливай <span class="hl">вовремя</span>.<br>Удобряй <span class="out">с умом</span>.</h1>
-        <p class="lede">Выбери растения, которые живут у тебя дома — из 55 популярных видов или собери свою карточку. Green Friend составит план ухода и напомнит в Telegram про полив, подкормку и пересадку — даже когда вкладка закрыта. Подкормка — только в сезон роста каждого растения.</p>
+        <p class="lede">Выбери растения, которые живут у тебя дома — из 55 популярных видов или собери свою карточку. Green Friend составит план ухода и напомнит в Telegram про полив, подкормку и пересадку — всегда в 20:00, даже когда вкладка закрыта.</p>
         <div class="cta">
-          <a class="btn" href="#catalog">Выбрать растения ↓</a>
+          <a class="btn" href="#catalog" data-opencat>Выбрать растения ↓</a>
           <a class="btn-ghost" href="#tg">📲 Подключить Telegram</a>
         </div>
         <div class="stats">
           <div class="stat"><b id="stMine">0</b><span>растений дома</span></div>
           <div class="stat"><b id="stWeek">0</b><span>задач на неделю</span></div>
           <div class="stat"><b id="stNext">—</b><span>ближайшее дело</span></div>
+          <div class="stat small"><b id="stUsers">–</b><span>пользователей в сервисе</span></div>
+          <div class="stat small"><b id="stPlants">–</b><span>растений у всех</span></div>
         </div>
       </div>
       <div class="scene reveal in" aria-hidden="true">
@@ -379,7 +379,7 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
       <div class="empty" id="mineEmpty">
         <span class="big">🪴</span>
         <p>На подоконнике пока пусто. Загляните в каталог — там 55 популярных растений с честными правилами ухода. Не нашли своё? Соберите карточку сами.</p>
-        <a class="btn" href="#catalog">Открыть каталог</a>
+        <a class="btn" href="#catalog" data-opencat>Открыть каталог</a>
       </div>
       <div class="my-grid" id="mineGrid"></div>
     </div>
@@ -389,34 +389,39 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
     <div class="wrap">
       <div class="sec-head reveal"><span class="sec-num">02</span><h2>Каталог растений</h2><span class="sec-meta">55 самых популярных в России + свои карточки</span></div>
 
-      <button class="builder-toggle reveal" id="builderToggle">🛠 Не нашли своё растение? Соберите собственную карточку <span class="arr">▾</span></button>
-      <div class="builder" id="builder">
-        <b class="disp" style="font-size:16px" id="builderTitle">Новая карточка растения</b>
-        <div class="b-grid">
-          <div><label>Название *</label><input id="bName" placeholder="Например, Эпифиллум"></div>
-          <div><label>Эмодзи</label><div class="emj" id="bEmj"></div></div>
-          <div><label>Полив, раз в N дней *</label><input id="bWater" type="number" min="1" max="90" value="7"></div>
-          <div><label>Подкормка, раз в N дней *</label><input id="bFeed" type="number" min="1" max="180" value="14"></div>
-          <div><label>Пересадка, раз в N месяцев *</label><input id="bRepot" type="number" min="1" max="120" value="24"></div>
-          <div><label>Сезон подкормки: с</label><select id="bFeedFrom"><option value="1">янв</option><option value="2">фев</option><option value="3" selected>мар</option><option value="4">апр</option><option value="5">май</option><option value="6">июн</option><option value="7">июл</option><option value="8">авг</option><option value="9">сен</option><option value="10">окт</option><option value="11">ноя</option><option value="12">дек</option></select></div>
-          <div><label>по</label><select id="bFeedTo"><option value="1">янв</option><option value="2">фев</option><option value="3">мар</option><option value="4">апр</option><option value="5">май</option><option value="6">июн</option><option value="7">июл</option><option value="8">авг</option><option value="9">сен</option><option value="10" selected>окт</option><option value="11">ноя</option><option value="12">дек</option></select></div>
-          <div><label>Свет</label><select id="bLight"><option>Яркий рассеянный</option><option>Прямое солнце</option><option>Свет / полутень</option><option>Полутень</option><option>Тень</option></select></div>
-          <div><label>Влажность</label><select id="bHum"><option>Низкая</option><option>Умеренная</option><option>Высокая</option><option>Очень высокая</option></select></div>
-          <div><label>Температура</label><input id="bTemp" placeholder="18–25 °C"></div>
-          <div class="full"><label>Совет по уходу</label><textarea id="bTip" placeholder="Ваши наблюдения и секреты…"></textarea></div>
-          <div class="full"><label class="chk"><input type="checkbox" id="bToxic"> ⚠ Токсично для кошек и собак</label></div>
-        </div>
-        <div class="b-actions">
-          <button class="btn" id="bSave">Поселить в каталог и домой 🏡</button>
-          <button class="btn-ghost" id="bCancel">Отмена</button>
-        </div>
-      </div>
+      <button class="builder-toggle reveal" id="catToggle">🌿 Каталог растений — раскрыть <span class="arr">▾</span></button>
+      <div class="collapse" id="catWrap"><div>
 
-      <div class="cat-controls">
-        <div class="filters" id="filters"></div>
-        <input class="search" id="catSearch" type="search" placeholder="🔍 Поиск по каталогу…">
-      </div>
-      <div class="cat-grid" id="catGrid"></div>
+        <button class="builder-toggle" id="builderToggle">🛠 Не нашли своё растение? Соберите собственную карточку <span class="arr">▾</span></button>
+        <div class="builder" id="builder">
+          <b class="disp" style="font-size:16px" id="builderTitle">Новая карточка растения</b>
+          <div class="b-grid">
+            <div><label>Название *</label><input id="bName" placeholder="Например, Эпифиллум"></div>
+            <div><label>Эмодзи</label><div class="emj" id="bEmj"></div></div>
+            <div><label>Полив, раз в N дней *</label><input id="bWater" type="number" min="1" max="90" value="7"></div>
+            <div><label>Подкормка, раз в N дней *</label><input id="bFeed" type="number" min="1" max="180" value="14"></div>
+            <div><label>Пересадка, раз в N месяцев *</label><input id="bRepot" type="number" min="1" max="120" value="24"></div>
+            <div><label>Сезон подкормки: с</label><select id="bFeedFrom"><option value="1">янв</option><option value="2">фев</option><option value="3" selected>мар</option><option value="4">апр</option><option value="5">май</option><option value="6">июн</option><option value="7">июл</option><option value="8">авг</option><option value="9">сен</option><option value="10">окт</option><option value="11">ноя</option><option value="12">дек</option></select></div>
+            <div><label>по</label><select id="bFeedTo"><option value="1">янв</option><option value="2">фев</option><option value="3">мар</option><option value="4">апр</option><option value="5">май</option><option value="6">июн</option><option value="7">июл</option><option value="8">авг</option><option value="9">сен</option><option value="10" selected>окт</option><option value="11">ноя</option><option value="12">дек</option></select></div>
+            <div><label>Свет</label><select id="bLight"><option>Яркий рассеянный</option><option>Прямое солнце</option><option>Свет / полутень</option><option>Полутень</option><option>Тень</option></select></div>
+            <div><label>Влажность</label><select id="bHum"><option>Низкая</option><option>Умеренная</option><option>Высокая</option><option>Очень высокая</option></select></div>
+            <div><label>Температура</label><input id="bTemp" placeholder="18–25 °C"></div>
+            <div class="full"><label>Совет по уходу</label><textarea id="bTip" placeholder="Ваши наблюдения и секреты…"></textarea></div>
+            <div class="full"><label class="chk"><input type="checkbox" id="bToxic"> ⚠ Токсично для кошек и собак</label></div>
+          </div>
+          <div class="b-actions">
+            <button class="btn" id="bSave">Поселить в каталог и домой 🏡</button>
+            <button class="btn-ghost" id="bCancel">Отмена</button>
+          </div>
+        </div>
+
+        <div class="cat-controls">
+          <div class="filters" id="filters"></div>
+          <input class="search" id="catSearch" type="search" placeholder="🔍 Поиск по каталогу…">
+        </div>
+        <div class="cat-grid" id="catGrid"></div>
+
+      </div></div>
     </div>
   </section>
 
@@ -424,7 +429,7 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
     <div class="wrap">
       <div class="sec-head reveal"><span class="sec-num">03</span><h2>План на 2 недели</h2><span class="sec-meta" id="planMeta"></span></div>
       <div class="days reveal" id="days"></div>
-      <div class="legend"><span>💧 полив</span><span>🧪 подкормка (только в сезон)</span><span>🪴 пересадка</span><span style="margin-left:auto">план строится по вашим отметкам «полито / подкормлено / пересажено»</span></div>
+      <div class="legend"><span>💧 полив</span><span>🧪 подкормка (в сезон)</span><span>🪴 пересадка</span><span style="margin-left:auto">напоминания приходят в 20:00 и 22:00 МСК</span></div>
     </div>
   </section>
 
@@ -439,10 +444,6 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
         <div class="tgbtns" style="margin-top:6px">
           <button class="btn-line" id="btnCheck">Проверить задачи сейчас</button>
           <button class="btn-line" id="btnBrowser">🔔 Браузерные уведомления</button>
-        </div>
-        <div class="tglog">
-          <h4>Журнал сайта · пока вкладка открыта</h4>
-          <ul id="logList"></ul>
         </div>
       </div>
 
@@ -461,15 +462,15 @@ footer .logo-f{font-family:'Unbounded';font-weight:700;color:var(--ink)}
         <ol class="plain">
           <li>Создайте <b>одного общего бота</b>: <code>@BotFather</code> → <code>/newbot</code> → скопируйте токен.</li>
           <li>Создайте проект на <code>supabase.com</code>, выполните <b>SQL-скрипт</b> ниже; в <b>Authentication → Providers → Email</b> отключите «Confirm email».</li>
+          <li>В <b>Authentication → URL Configuration</b> укажите Site URL вашего сайта — иначе не будут работать письма сброса пароля.</li>
           <li>Задайте секреты и задеплойте обе Edge Functions (<b>tg-webhook</b> и <b>reminders</b>) — код ниже.</li>
-          <li>Подключите вебхук командой <b>curl</b> (ниже) — бот начнёт принимать /start от пользователей.</li>
-          <li>Создайте <b>cron-задачу</b> для функции reminders — она шлёт напоминания, даже когда вкладка закрыта.</li>
-          <li>Впишите url, anon key и имя бота в <code>OWNER_CONFIG</code> вверху index.html и выкладывайте сайт. Эта панель после этого исчезнет у всех. Поля выше — чтобы протестировать без правки кода.</li>
+          <li>Подключите вебхук (инструкция ниже) — бот начнёт принимать /start от пользователей.</li>
+          <li>Создайте <b>cron-задачу</b> для функции reminders с расписанием <code>0 17,19 * * *</code> (20:00 и 22:00 МСК).</li>
+          <li>Впишите url, anon key и имя бота в <code>OWNER_CONFIG</code> вверху index.html и выкладывайте сайт. Эта панель после этого исчезнет у всех.</li>
         </ol>
         <div class="warn-note">🔒 Безопасность: anon key публичный — доступ к данным ограничивает Row Level Security (каждый видит только своё). Токен бота и service_role ключ живут только в секретах сервера и в браузер не попадают.</div>
 
-        <details class="code"><summary>📋 SQL: таблицы и права<button class="copybtn" data-copy="sqlCode" type="button">копировать</button></summary><pre id="sqlCode">-- Растения пользователей
-create table if not exists public.plants (
+        <details class="code"><summary>📋 SQL: таблицы, права, счётчики<button class="copybtn" data-copy="sqlCode" type="button">копировать</button></summary><pre id="sqlCode">create table if not exists public.plants (
   id uuid primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
   sid text not null,
@@ -478,11 +479,11 @@ create table if not exists public.plants (
   feed_from int, feed_to int,
   light text, humidity text, temp text, tip text, toxic boolean,
   last_water timestamptz, last_feed timestamptz, last_repot timestamptz,
+  next_water_at timestamptz, next_feed_at timestamptz, next_repot_at timestamptz,
   last_reminded_at timestamptz,
   notified jsonb default '{}'::jsonb,
   created_at timestamptz default now()
 );
--- Свои карточки видов
 create table if not exists public.custom_species (
   id uuid primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -492,7 +493,6 @@ create table if not exists public.custom_species (
   light text, humidity text, temp text, tip text, toxic boolean,
   created_at timestamptz default now()
 );
--- Профиль: привязка Telegram-чата
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   chat_id text,
@@ -506,14 +506,29 @@ create policy "plants own" on public.plants for all using (auth.uid()=user_id) w
 create policy "custom own" on public.custom_species for all using (auth.uid()=user_id) with check (auth.uid()=user_id);
 create policy "profiles own" on public.profiles for all using (auth.uid()=id) with check (auth.uid()=id);
 
--- ЕСЛИ ТАБЛИЦЫ УЖЕ СОЗДАНЫ РАНЬШЕ: выполните только это
+-- Публичные счётчики для шапки сайта
+create or replace function public.gf_stats() returns json
+language sql stable security definer set search_path = public
+as $$ select json_build_object(
+  'users', (select count(*) from auth.users),
+  'plants', (select count(*) from public.plants)
+); $$;
+
+-- ЕСЛИ ТАБЛИЦЫ УЖЕ СОЗДАНЫ: миграция на фиксированное время
 alter table public.plants add column if not exists feed_from int;
 alter table public.plants add column if not exists feed_to int;
+alter table public.plants add column if not exists next_water_at timestamptz;
+alter table public.plants add column if not exists next_feed_at timestamptz;
+alter table public.plants add column if not exists next_repot_at timestamptz;
 alter table public.custom_species add column if not exists feed_from int;
-alter table public.custom_species add column if not exists feed_to int;</pre></details>
+alter table public.custom_species add column if not exists feed_to int;
+update public.plants set
+  next_water_at = date_trunc('day', last_water + (water_days||' days')::interval) + interval '17 hours',
+  next_feed_at  = date_trunc('day', last_feed  + (feed_days||' days')::interval)  + interval '17 hours',
+  next_repot_at = date_trunc('day', last_repot + (repot_months*30||' days')::interval) + interval '17 hours'
+where next_water_at is null;</pre></details>
 
         <details class="code"><summary>🤖 Edge Function «tg-webhook» — принимает /start<button class="copybtn" data-copy="hookCode" type="button">копировать</button></summary><pre id="hookCode">// supabase/functions/tg-webhook/index.ts
-// Принимает сообщения общего бота Green Friend
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const sb = createClient(
@@ -543,7 +558,6 @@ Deno.serve(async (req) =&gt; {
   const chatId = String(msg.chat.id);
   const text = msg.text.trim();
 
-  // /start USER_ID — пришёл по ссылке с сайта: привязываем чат
   const m = text.match(/^\/start(?:@\w*)?\s+([\w-]+)/);
   if (m) {
     await sb.from("profiles").upsert({
@@ -552,17 +566,17 @@ Deno.serve(async (req) =&gt; {
     });
     await send(chatId,
       "✅ Готово! Вы подключили напоминания Green Friend.\n\n" +
-      "Я напишу, когда растение действительно ждёт: полить 💧, подкормить 🧪 или пересадить 🪴.\n\n" +
+      "Я напишу, когда растение действительно ждёт: полить 💧, подкормить 🧪 или пересадить 🪴. Напоминания приходят в 20:00 (и повтор в 22:00, если не отметили).\n\n" +
       "/test — посмотреть пример напоминания");
   } else if (text.startsWith("/test")) {
     await send(chatId,
-      "🧪 Пример напоминания:\n\n🌿 Green Friend напоминает!\n🗓 пятница, 14 августа\n\n" +
+      "🧪 Пример напоминания:\n\n🌿 Green Friend напоминает!\n🗓 среда, 19 августа\n\n" +
       "💧 Полить: 🌿 Монстера · Кухня\n🧪 Подкормить: 🌳 Фикус · Гостиная\n\n" +
       "Хорошего дня вашим зелёным! 🪴");
   } else if (text.startsWith("/status")) {
     const { data } = await sb.from("profiles").select("id").eq("chat_id", chatId).maybeSingle();
     await send(chatId, data
-      ? "✅ Чат привязан к аккаунту. Напоминания приходят по расписанию."
+      ? "✅ Чат привязан к аккаунту. Напоминания приходят в 20:00 и 22:00 МСК."
       : "⚠️ Чат не привязан. Нажмите «Start» по ссылке с сайта Green Friend.");
   } else {
     await send(chatId, "Я бот Green Friend 🌿\n\n/test — пример напоминания\n/status — проверить привязку\n\nПодключение — по ссылке с сайта.");
@@ -570,9 +584,9 @@ Deno.serve(async (req) =&gt; {
   return new Response("ok");
 });</pre></details>
 
-        <details class="code"><summary>⏰ Edge Function «reminders» — cron-напоминания с сезоном<button class="copybtn" data-copy="fnCode" type="button">копировать</button></summary><pre id="fnCode">// supabase/functions/reminders/index.ts
-// Запускается cron-задачей и шлёт накопившиеся задачи в Telegram.
-// Подкормка напоминает ТОЛЬКО в сезон роста растения.
+        <details class="code"><summary>⏰ Edge Function «reminders» — напоминания в 20:00 МСК<button class="copybtn" data-copy="fnCode" type="button">копировать</button></summary><pre id="fnCode">// supabase/functions/reminders/index.ts
+// Cron (0 17,19 * * * UTC = 20:00 и 22:00 МСК) шлёт напоминания.
+// Подкормка — только в сезон роста растения.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const sb = createClient(
@@ -581,7 +595,6 @@ const sb = createClient(
 );
 const BOT = Deno.env.get("TELEGRAM_BOT_TOKEN")!;
 
-// Исключения по сезону подкормки (для остальных — март–октябрь)
 const OVR: Record&lt;string, [number, number]&gt; = {
   cyclamen: [10, 3], lithops: [10, 3], azalea: [2, 9],
   phalaenopsis: [1, 12], saintpaulia: [1, 12],
@@ -593,14 +606,32 @@ function json(o: any, s = 200) {
   });
 }
 
+// Следующий слот напоминания: 17:00/19:00 UTC (20:00/22:00 МСК),
+// после 19:00 — следующий день в 17:00.
+function advance(ts: number, now: number) {
+  const today17 = new Date(now); today17.setUTCHours(17, 0, 0, 0);
+  const today19 = new Date(now); today19.setUTCHours(19, 0, 0, 0);
+  let t = ts;
+  if (t &lt; today17.getTime()) t = today17.getTime();
+  if (t &lt;= now) {
+    if (t === today17.getTime() &amp;&amp; today19.getTime() &gt; now) t = today19.getTime();
+    else {
+      const d = new Date(now);
+      d.setUTCDate(d.getUTCDate() + 1);
+      d.setUTCHours(17, 0, 0, 0);
+      t = d.getTime();
+    }
+  }
+  return t;
+}
+
 Deno.serve(async () =&gt; {
   const { data: plants, error } = await sb.from("plants").select("*");
   if (error || !plants) return json({ error: error?.message }, 500);
 
   const now = Date.now();
   const month = new Date().getMonth() + 1;
-  const COOLDOWN = 12 * 3600e3; // не дёргать чаще двух раз в сутки
-  const dueByUser: Record&lt;string, { lines: string[]; ids: string[] }&gt; = {};
+  const dueByUser: Record&lt;string, { lines: string[]; patches: { id: string; patch: any }[] }&gt; = {};
 
   for (const p of plants) {
     const ov = OVR[p.sid];
@@ -608,22 +639,22 @@ Deno.serve(async () =&gt; {
     const fb = p.feed_to ?? ov?.[1] ?? 10;
     const feedInSeason = fa &lt;= fb ? (month &gt;= fa &amp;&amp; month &lt;= fb) : (month &gt;= fa || month &lt;= fb);
 
-    const jobs: [string, number][] = [
-      ["💧 Полить", Date.parse(p.last_water) + (p.water_days ?? 7) * 864e5],
-      ["🪴 Пересадить", Date.parse(p.last_repot) + (p.repot_months ?? 24) * 2592e6],
+    const jobs: [string, string, number][] = [
+      ["💧 Полить", "next_water_at", Date.parse(p.next_water_at)],
+      ["🪴 Пересадить", "next_repot_at", Date.parse(p.next_repot_at)],
     ];
-    if (feedInSeason) {
-      jobs.push(["🧪 Подкормить", Date.parse(p.last_feed) + (p.feed_days ?? 14) * 864e5]);
-    }
+    if (feedInSeason) jobs.push(["🧪 Подкормить", "next_feed_at", Date.parse(p.next_feed_at)]);
 
-    const due = jobs.filter(([, d]) =&gt; d &lt;= now);
+    const due = jobs.filter(([, , d]) =&gt; !isNaN(d) &amp;&amp; d &lt;= now);
     if (!due.length) continue;
-    if (now - (p.last_reminded_at ? Date.parse(p.last_reminded_at) : 0) &lt; COOLDOWN) continue;
-    const bucket = (dueByUser[p.user_id] ||= { lines: [], ids: [] });
-    due.forEach(([label]) =&gt; bucket.lines.push(
-      `${label}: ${p.emoji} ${p.nickname || p.name}${p.room ? ` · ${p.room}` : ""}`
-    ));
-    bucket.ids.push(p.id);
+
+    const bucket = (dueByUser[p.user_id] ||= { lines: [], patches: [] });
+    const patch: any = {};
+    due.forEach(([label, col, d]) =&gt; {
+      bucket.lines.push(`${label}: ${p.emoji} ${p.nickname || p.name}${p.room ? ` · ${p.room}` : ""}`);
+      patch[col] = new Date(advance(d, now)).toISOString();
+    });
+    bucket.patches.push({ id: p.id, patch });
   }
 
   let sent = 0;
@@ -641,8 +672,9 @@ Deno.serve(async () =&gt; {
     });
     if (r.ok) {
       sent++;
-      await sb.from("plants")
-        .update({ last_reminded_at: new Date().toISOString() }).in("id", b.ids);
+      for (const { id, patch } of b.patches) {
+        await sb.from("plants").update(patch).eq("id", id);
+      }
     }
   }
   return json({ users: Object.keys(dueByUser).length, sent });
@@ -653,21 +685,21 @@ Deno.serve(async () =&gt; {
 # 1. Supabase CLI (один раз)
 npm i -g supabase
 supabase login
-supabase link --project-ref РЕФ_ПРОЕКТА          # виден в URL проекта
+supabase link --project-ref РЕФ_ПРОЕКТА
 
 # 2. Секреты
 supabase secrets set TELEGRAM_BOT_TOKEN=123456:ABC…
 supabase secrets set TELEGRAM_SECRET_TOKEN=любая_длинная_строка
 
-# 3. Деплой функций (папки supabase/functions/tg-webhook и reminders)
+# 3. Деплой функций
 supabase functions deploy tg-webhook --no-verify-jwt
 supabase functions deploy reminders --no-verify-jwt
 
-# 4. Вебхук (один раз). URL функции смотрите в панели: Edge Functions → tg-webhook
-curl "https://api.telegram.org/bot&lt;ТОКЕН&gt;/setWebhook?url=https://&lt;REF&gt;.functions.co/tg-webhook&amp;secret_token=&lt;TELEGRAM_SECRET_TOKEN&gt;"
+# 4. Вебхук (один раз)
+curl "https://api.telegram.org/bot&lt;ТОКЕН&gt;/setWebhook?url=https://&lt;REF&gt;.supabase.co/functions/v1/tg-webhook&amp;secret_token=&lt;TELEGRAM_SECRET_TOKEN&gt;"
 
-# 5. Cron: панель Supabase → Cron Jobs → New job
-#    тип: Edge Function «reminders», расписание: 0 */2 * * * (каждые 2 часа)
+# 5. Cron (панель Supabase или SQL): расписание 0 17,19 * * *
+#    (это 20:00 и 22:00 по Москве)
 
 # 6. Впишите url, anon key и имя бота в OWNER_CONFIG вверху index.html</pre></details>
       </div>
@@ -724,18 +756,38 @@ curl "https://api.telegram.org/bot&lt;ТОКЕН&gt;/setWebhook?url=https://&lt;
     <span class="memoji">☁️</span>
     <h3>Аккаунт Green Friend</h3>
     <p class="platin" style="font-style:normal;margin-top:4px">Растения сохранятся в облаке и не пропадут при смене устройства.</p>
-    <div class="atabs">
-      <button class="atab on" id="tabIn">Вход</button>
-      <button class="atab" id="tabUp">Регистрация</button>
+    <div id="authMain">
+      <div class="atabs">
+        <button class="atab on" id="tabIn">Вход</button>
+        <button class="atab" id="tabUp">Регистрация</button>
+      </div>
+      <div class="aform">
+        <label>Email</label>
+        <input id="aEmail" type="email" autocomplete="email" placeholder="you@mail.ru">
+        <label>Пароль (мин. 6 символов)</label>
+        <input id="aPass" type="password" autocomplete="current-password" placeholder="••••••">
+      </div>
+      <button class="btn" style="margin-top:20px;width:100%" id="aSubmit">Войти</button>
+      <div style="text-align:center"><button class="forgot" id="aForgot">Забыли пароль?</button></div>
+      <div class="amsg" id="aMsg"></div>
     </div>
-    <div class="aform">
-      <label>Email</label>
-      <input id="aEmail" type="email" autocomplete="email" placeholder="you@mail.ru">
-      <label>Пароль (мин. 6 символов)</label>
-      <input id="aPass" type="password" autocomplete="current-password" placeholder="••••••">
+    <div id="forgotBox" style="display:none">
+      <div class="aform">
+        <label>Email, на который зарегистрированы</label>
+        <input id="fEmail" type="email" placeholder="you@mail.ru">
+      </div>
+      <button class="btn" style="margin-top:20px;width:100%" id="fSend">Отправить ссылку для сброса</button>
+      <div style="text-align:center"><button class="forgot" id="fBack">← Вернуться ко входу</button></div>
+      <div class="amsg" id="fMsg"></div>
     </div>
-    <button class="btn" style="margin-top:20px;width:100%" id="aSubmit">Войти</button>
-    <div class="amsg" id="aMsg"></div>
+    <div id="resetBox" style="display:none">
+      <div class="aform">
+        <label>Новый пароль (мин. 6 символов)</label>
+        <input id="rPass" type="password" placeholder="••••••">
+      </div>
+      <button class="btn" style="margin-top:20px;width:100%" id="rSend">Сохранить новый пароль</button>
+      <div class="amsg" id="rMsg"></div>
+    </div>
   </div>
 </div>
 
@@ -817,6 +869,8 @@ const FEED_DEF=[3,10];
 const FEED_OVR={cyclamen:[10,3],lithops:[10,3],azalea:[2,9],phalaenopsis:[1,12],saintpaulia:[1,12]};
 function seasonOf(sp){if(sp&&sp.feedFrom)return[sp.feedFrom,sp.feedTo];return FEED_OVR[sp?.id]||FEED_DEF}
 function inSeason(season,d){const mo=d.getMonth()+1,a=season[0],b=season[1];return a<=b?(mo>=a&&mo<=b):(mo>=a||mo<=b)}
+/* Следующее напоминание: сегодня + N дней, всегда в 17:00 UTC (20:00 МСК) */
+function nextAt(days){const d=new Date();d.setUTCDate(d.getUTCDate()+days);d.setUTCHours(17,0,0,0);return +d}
 const TIPS=[
 'Большинство комнатных гибнет от перелива, а не от засухи',
 'Зимой почти все растения спят — подкормка в период покоя вредит',
@@ -826,15 +880,15 @@ const TIPS=[
 'Дренажные отверстия обязательны. Всегда. Без исключений',
 'Жёлтые нижние листья — часто норма роста, а не болезнь',
 'Опрыскивание не заменяет полив — оно про влажность воздуха',
-'Подключите Telegram в один клик — напоминания будут приходить даже ночью'
+'Напоминания приходят в 20:00 и 22:00 — удобно для всех'
 ];
-const EMOJI_SET=['🌱','','🍃','','🌴','','🌺','','🌷','','🌹','','🍀','','🪻','','🌻','','🌰','','☘️','🌲','🥀','🫚'];
+const EMOJI_SET=['🌱','','🍀','','🌴','','🌺','','🌷','','🌻','','🍂','🍁','🌾','🌰','🍋','🍊','🥑','','🌲','️','🍇','🥀'];
 
 /* ============ СОСТОЯНИЕ ============ */
 const DAY=86400000, LS='gf.data';
 const uid=()=>crypto.randomUUID();
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const defaults=()=>({mine:[],custom:[],log:[],roomFilter:'',deletedIds:[]});
+const defaults=()=>({mine:[],custom:[],roomFilter:'',deletedIds:[]});
 let state=(()=>{try{const s=JSON.parse(localStorage.getItem(LS));if(s&&s.mine)return Object.assign(defaults(),s)}catch(e){}return defaults()})();
 const saveLocal=()=>localStorage.setItem(LS,JSON.stringify(state));
 const $=s=>document.querySelector(s);
@@ -842,13 +896,12 @@ const P=id=>PLANTS.find(p=>p.id===id);
 const speciesOf=sid=>sid?.startsWith('cus:')?state.custom.find(c=>'cus:'+c.id===sid):P(sid);
 const dayKey=ts=>new Date(ts).toDateString();
 function tasks(m){
-  const now=Date.now();
   const season=[m.feedFrom||3,m.feedTo||10];
   const sleep=!inSeason(season,new Date());
   return [
-    {type:'water',emoji:'💧',label:'полить',due:m.lastWater+m.water*DAY,iv:m.water},
-    {type:'feed',emoji:'🧪',label:'подкормить',due:m.lastFeed+m.feed*DAY,iv:m.feed,season,sleep},
-    {type:'repot',emoji:'🪴',label:'пересадить',due:m.lastRepot+m.repot*30*DAY,iv:m.repot*30}
+    {type:'water',emoji:'💧',label:'полить',due:m.nextWater,anchor:m.lastWater,iv:m.water},
+    {type:'feed',emoji:'🧪',label:'подкормить',due:m.nextFeed,anchor:m.lastFeed,iv:m.feed,season,sleep},
+    {type:'repot',emoji:'🪴',label:'пересадить',due:m.nextRepot,anchor:m.lastRepot,iv:m.repot*30}
   ];
 }
 const dl=t=>Math.ceil((t.due-Date.now())/DAY);
@@ -875,6 +928,7 @@ function initSb(){
   if(sb){
     sb.auth.getSession().then(({data})=>{if(data.session)onLogin(data.session.user,false)});
     sb.auth.onAuthStateChange(async (ev,sess)=>{
+      if(ev==='PASSWORD_RECOVERY'){showReset();return}
       if((ev==='SIGNED_IN'||ev==='INITIAL_SESSION')&&sess&&!SBUSER)await onLogin(sess.user,true);
       if(ev==='SIGNED_OUT'){
         SBUSER=null;CHAT_ID=null;waitingTg=false;stopPoll();
@@ -885,6 +939,14 @@ function initSb(){
   }
   renderOwnerPanel();
   renderAuthUI();
+  loadStats();
+}
+async function loadStats(){
+  if(!sb)return;
+  try{
+    const {data}=await sb.rpc('gf_stats');
+    if(data){$('#stUsers').textContent=data.users;$('#stPlants').textContent=data.plants}
+  }catch(e){}
 }
 function renderOwnerPanel(){
   const c=getCfg();
@@ -920,7 +982,9 @@ $('#authBtn').addEventListener('click',()=>{
 });
 function openAuthModal(){
   if(!sb){toast('Облако ещё не настроено владельцем сайта ⚙️','warn');return}
-  $('#aMsg').textContent='';$('#authModal').classList.add('show');
+  $('#aMsg').textContent='';
+  $('#authMain').style.display='';$('#forgotBox').style.display='none';$('#resetBox').style.display='none';
+  $('#authModal').classList.add('show');
 }
 let authMode='in';
 $('#tabIn').addEventListener('click',()=>setAuthMode('in'));
@@ -942,6 +1006,38 @@ $('#aSubmit').addEventListener('click',async()=>{
       else $('#authModal').classList.remove('show');
     }
   }catch(e){$('#aMsg').textContent=e.message}
+});
+/* --- сброс пароля --- */
+$('#aForgot').addEventListener('click',()=>{
+  $('#authMain').style.display='none';$('#forgotBox').style.display='';$('#resetBox').style.display='none';
+  $('#fEmail').value=$('#aEmail').value||'';$('#fMsg').textContent='';
+});
+$('#fBack').addEventListener('click',()=>{
+  $('#authMain').style.display='';$('#forgotBox').style.display='none';
+});
+$('#fSend').addEventListener('click',async()=>{
+  const email=$('#fEmail').value.trim();
+  if(!email){$('#fMsg').textContent='Введите email';return}
+  $('#fMsg').className='amsg';$('#fMsg').textContent='Отправляем…';
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+  if(error){$('#fMsg').textContent=error.message;return}
+  $('#fMsg').className='amsg good';
+  $('#fMsg').textContent='Готово! Проверьте почту и откройте ссылку для сброса пароля ✉️';
+});
+function showReset(){
+  $('#authMain').style.display='none';$('#forgotBox').style.display='none';$('#resetBox').style.display='';
+  $('#rMsg').textContent='';$('#rPass').value='';
+  $('#authModal').classList.add('show');
+}
+$('#rSend').addEventListener('click',async()=>{
+  const pass=$('#rPass').value;
+  if(pass.length<6){$('#rMsg').textContent='Минимум 6 символов';return}
+  $('#rMsg').className='amsg';$('#rMsg').textContent='Сохраняем…';
+  const {error}=await sb.auth.updateUser({password:pass});
+  if(error){$('#rMsg').textContent=error.message;return}
+  $('#authModal').classList.remove('show');
+  toast('Пароль изменён ✅ Теперь вы вошли с новым паролем');
+  renderAuthUI();
 });
 async function onLogin(user,greet){
   SBUSER=user;CHAT_ID=null;
@@ -972,7 +1068,7 @@ async function onLogin(user,greet){
     state.mine=(rows||[]).map(rowToPlant);
     localStorage.setItem(migKey,'1');
   }
-  saveLocal();renderAll();
+  saveLocal();renderAll();loadStats();
   if(greet)toast('Добро пожаловать! Данные синхронизированы ☁️');
 }
 const iso=ts=>new Date(ts).toISOString();
@@ -980,14 +1076,19 @@ function plantToRow(m){
   return {id:m.id,user_id:SBUSER.id,sid:m.sid,name:m.name,emoji:m.emoji,nickname:m.nickname||null,room:m.room||null,
     water_days:m.water,feed_days:m.feed,repot_months:m.repot,feed_from:m.feedFrom||3,feed_to:m.feedTo||10,
     light:m.light,humidity:m.hum,temp:m.temp,tip:m.tip,toxic:m.toxic,
-    last_water:iso(m.lastWater),last_feed:iso(m.lastFeed),last_repot:iso(m.lastRepot),notified:m.notified};
+    last_water:iso(m.lastWater),last_feed:iso(m.lastFeed),last_repot:iso(m.lastRepot),
+    next_water_at:iso(m.nextWater),next_feed_at:iso(m.nextFeed),next_repot_at:iso(m.nextRepot),notified:m.notified};
 }
 function rowToPlant(r){
   const se=FEED_OVR[r.sid]||FEED_DEF;
   return {id:r.id,sid:r.sid,name:r.name,emoji:r.emoji,nickname:r.nickname||'',room:r.room||'',
     water:r.water_days,feed:r.feed_days,repot:r.repot_months,feedFrom:r.feed_from??se[0],feedTo:r.feed_to??se[1],
     light:r.light||'',hum:r.humidity||'',temp:r.temp||'',tip:r.tip||'',toxic:!!r.toxic,
-    lastWater:+new Date(r.last_water),lastFeed:+new Date(r.last_feed),lastRepot:+new Date(r.last_repot),notified:r.notified||{}};
+    lastWater:+new Date(r.last_water),lastFeed:+new Date(r.last_feed),lastRepot:+new Date(r.last_repot),
+    nextWater:r.next_water_at?+new Date(r.next_water_at):nextAt(r.water_days),
+    nextFeed:r.next_feed_at?+new Date(r.next_feed_at):nextAt(r.feed_days),
+    nextRepot:r.next_repot_at?+new Date(r.next_repot_at):nextAt(r.repot_months*30),
+    notified:r.notified||{}};
 }
 async function persistPlant(m){
   saveLocal();
@@ -1039,7 +1140,7 @@ function renderTg(){
     }
     return;
   }
-  box.innerHTML=`<div class="tg-state"><span class="bigic">✅</span><b>Telegram подключён!</b><span class="sub">Напоминания о поливе, подкормке и пересадке будут приходить в ваш чат — даже когда вкладка закрыта. Хотите посмотреть, как они выглядят? Отправьте боту команду /test.</span><br><button class="btn-line" style="margin-top:16px" data-tgoff>Отключить</button></div>`;
+  box.innerHTML=`<div class="tg-state"><span class="bigic">✅</span><b>Telegram подключён!</b><span class="sub">Напоминания о поливе, подкормке и пересадке приходят в 20:00 (и повтор в 22:00, если не отметили) — даже когда вкладка закрыта. /test — пример сообщения.</span><br><button class="btn-line" style="margin-top:16px" data-tgoff>Отключить</button></div>`;
 }
 $('#tgBox').addEventListener('click',async e=>{
   if(e.target.closest('[data-authopen]')){openAuthModal();return}
@@ -1084,9 +1185,10 @@ function barHtml(t){
     return `<div class="bar"><div class="bar-l"><span>🧪 Подкормка</span><span>😴 спит до ${MGEN[t.season[0]-1]}</span></div><div class="track"><div class="fill" style="width:4%;background:#C7D6C2"></div></div></div>`;
   }
   const d=dl(t);
-  const pct=Math.min(100,Math.max(4,(Date.now()-(t.due-t.iv*DAY))/(t.iv*DAY)*100));
-  const cls=d<0?'bad':d<=1?'warn':'';
-  const lab=d<0?`просрочено ${-d} дн.`:d===0?'сегодня!':`через ${d} дн.`;
+  const span=Math.max(1,(t.due-t.anchor));
+  const pct=Math.min(100,Math.max(4,(Date.now()-t.anchor)/span*100));
+  const cls=d<0?'bad':d<=0?'warn':'';
+  const lab=d<0?`сегодня в 20:00!`:d===0?'сегодня в 20:00':`через ${d} дн.`;
   return `<div class="bar"><div class="bar-l"><span>${t.emoji} ${t.type==='water'?'Полив':'Подкормка'}</span><span>${lab}</span></div><div class="track"><div class="fill ${cls}" style="width:${pct}%"></div></div></div>`;
 }
 function renderMine(){
@@ -1104,8 +1206,8 @@ function renderMine(){
     const ts=tasks(m);
     const act=ts.filter(t=>!t.sleep);
     const worst=(act.length?act:ts).reduce((a,b)=>dl(a)<dl(b)?a:b);
-    const st=dl(worst)<0?'bad':dl(worst)<=1?'warn':'ok';
-    const chipTxt=st==='ok'?'💚 всё в порядке':`${worst.emoji} ${worst.label}${dl(worst)<0?' — срочно!':dl(worst)===0?' — сегодня':''}`;
+    const st=dl(worst)<0?'bad':dl(worst)<=0?'warn':'ok';
+    const chipTxt=st==='ok'?'💚 всё в порядке':`${worst.emoji} ${worst.label}${dl(worst)<0?' — сегодня в 20:00':''}`;
     const rd=dl(ts[2]);
     return `<article class="pcard reveal">
       <div class="pcard-top">
@@ -1154,13 +1256,14 @@ $('#mineGrid').addEventListener('click',async e=>{
   const a=e.target.closest('[data-act]');
   if(a){
     const m=state.mine[+a.dataset.i];
-    const map={water:'lastWater',feed:'lastFeed',repot:'lastRepot'};
-    const done={water:'полито 💧',feed:'подкормлено 🧪',repot:'пересажено 🪴'};
-    m[map[a.dataset.act]]=Date.now();
-    m.notified[a.dataset.act]=0;
+    const now=Date.now();
+    if(a.dataset.act==='water'){m.lastWater=now;m.nextWater=nextAt(m.water);m.notified.water=0}
+    if(a.dataset.act==='feed'){m.lastFeed=now;m.nextFeed=nextAt(m.feed);m.notified.feed=0}
+    if(a.dataset.act==='repot'){m.lastRepot=now;m.nextRepot=nextAt(m.repot*30);m.notified.repot=0}
     persistPlant(m);
     burst(a,a.dataset.act==='water'?'💧':a.dataset.act==='feed'?'✨':'🌱');
-    setTimeout(()=>{renderAll();toast(`${m.emoji} ${m.nickname||m.name}: ${done[a.dataset.act]}`)},260);
+    const done={water:'полито 💧',feed:'подкормлено 🧪',repot:'пересажено 🪴'};
+    setTimeout(()=>{renderAll();toast(`${m.emoji} ${m.nickname||m.name}: ${done[a.dataset.act]}. Следующее напоминание — через ${a.dataset.act==='repot'?m.repot+' мес.':(a.dataset.act==='water'?m.water:m.feed)+' дн. в 20:00`})},260);
     return;
   }
   const d=e.target.closest('[data-del]');
@@ -1169,7 +1272,7 @@ $('#mineGrid').addEventListener('click',async e=>{
       const idx=+d.dataset.del;
       const m=state.mine[idx];
       const ok=await persistDelete(m);
-      if(ok){state.mine.splice(idx,1);saveLocal();renderAll();toast(`${m.name} убрано из дома 🍂`)}
+      if(ok){state.mine.splice(idx,1);saveLocal();renderAll();loadStats();toast(`${m.name} убрано из дома 🍂`)}
     }else{
       d.textContent='точно убрать?';d.dataset.arm='1';d.classList.add('arm');
       setTimeout(()=>{if(d.isConnected){d.textContent='✕ убрать';delete d.dataset.arm;d.classList.remove('arm')}},2500);
@@ -1209,10 +1312,12 @@ $('#hsOk').addEventListener('click',()=>{
     feedFrom:season[0],feedTo:season[1],
     light:sp.light||'',hum:sp.hum||'',temp:sp.temp||'',tip:sp.tip||'',toxic:!!sp.toxic,
     nickname:$('#hsNick').value.trim(),room:$('#hsRoom').value.trim(),
-    lastWater:now,lastFeed:now,lastRepot:now,notified:{water:0,feed:0,repot:0}};
+    lastWater:now,lastFeed:now,lastRepot:now,
+    nextWater:nextAt(sp.water),nextFeed:nextAt(sp.feed),nextRepot:nextAt(sp.repot*30),
+    notified:{water:0,feed:0,repot:0}};
   state.mine.push(m);persistPlant(m);
   $('#hsModal').classList.remove('show');
-  renderAll();
+  renderAll();loadStats();
   toast(`${m.emoji} ${m.nickname||m.name} теперь живёт у вас дома 🏡`);
 });
 
@@ -1299,11 +1404,19 @@ $('#mAdd').addEventListener('click',e=>{
   startHousewarming(e.target.dataset.add);
 });
 
+/* раскрытие каталога */
+function openCat(){$('#catWrap').classList.add('open');$('#catToggle').classList.add('open')}
+$('#catToggle').addEventListener('click',()=>{
+  $('#catWrap').classList.toggle('open');
+  $('#catToggle').classList.toggle('open');
+});
+document.querySelectorAll('[data-opencat]').forEach(a=>a.addEventListener('click',()=>setTimeout(openCat,50)));
+
 /* ============ КОНСТРУКТОР КАРТОЧКИ ============ */
-$('#bEmj').innerHTML=EMOJI_SET.map(e=>`<button type="button">${e}</button>`).join('')+`<input id="bEmojiCustom" maxlength="4" placeholder="или">`;
+$('#bEmj').innerHTML=EMOJI_SET.map(e=>`<button type="button" data-e="${e}">${e}</button>`).join('')+`<input id="bEmojiCustom" maxlength="4" placeholder="или">`;
 let selEmoji='🌿';
-function setEmoji(e){selEmoji=e;document.querySelectorAll('#bEmj button').forEach(b=>b.classList.toggle('sel',b.textContent===e))}
-$('#bEmj').addEventListener('click',e=>{const b=e.target.closest('button');if(b){setEmoji(b.textContent);$('#bEmojiCustom').value=''}});
+function setEmoji(e){selEmoji=e;document.querySelectorAll('#bEmj button[data-e]').forEach(b=>b.classList.toggle('sel',b.dataset.e===e))}
+$('#bEmj').addEventListener('click',e=>{const b=e.target.closest('button[data-e]');if(b){setEmoji(b.dataset.e);$('#bEmojiCustom').value=''}});
 $('#bEmojiCustom').addEventListener('input',e=>{if(e.target.value)setEmoji(e.target.value.trim())});
 $('#builderToggle').addEventListener('click',()=>{
   $('#builder').classList.toggle('open');
@@ -1387,9 +1500,9 @@ function updateHeader(){
   b.textContent=todayCount===1?'1 задача сегодня':todayCount+' задач сегодня';
   $('#stMine').textContent=state.mine.length;
   $('#stWeek').textContent=weekCount;
-  $('#stNext').textContent=!state.mine.length?'—':dl(soon)<0?'срочно!':dl(soon)===0?'сегодня':`через ${dl(soon)} дн.`;
+  $('#stNext').textContent=!state.mine.length?'—':dl(soon)<0?'сегодня':dl(soon)===0?'сегодня':`через ${dl(soon)} дн.`;
 }
-function renderAll(){renderMine();renderCatalog();renderCalendar();updateHeader();renderLog();renderAuthUI();renderTg()}
+function renderAll(){renderMine();renderCatalog();renderCalendar();updateHeader();renderAuthUI();renderTg()}
 
 /* ============ НАПОМИНАНИЯ (вкладка открыта) ============ */
 function collectDue(){
@@ -1407,12 +1520,11 @@ function checkReminders(silent){
   if(!due.length){if(!silent)toast('Сейчас всё сделано — напоминать не о чем 🌿');return}
   due.forEach(d=>d.m.notified[d.t.type]=d.key);
   saveLocal();
-  addLog(due.map(d=>`${d.t.emoji} ${d.m.nickname||d.m.name}${d.m.room?' ('+d.m.room+')':''} — ${d.t.label}`).join(', '));
   if('Notification' in window&&Notification.permission==='granted'){
     try{new Notification('Green Friend 🌿',{body:due.map(d=>`${d.t.emoji} ${d.m.nickname||d.m.name} — ${d.t.label}`).join('\n')})}catch(e){}
   }
   if(!silent){
-    if(CHAT_ID)toast('Есть задачи по уходу — Telegram напомнит по расписанию 🕐');
+    if(CHAT_ID)toast('Есть задачи по уходу — Telegram напомнит в 20:00 🕐');
     else toast('Есть задачи по уходу! Подключите Telegram в разделе 04 📲','warn');
   }
   renderMine();updateHeader();
@@ -1423,18 +1535,6 @@ $('#btnBrowser').addEventListener('click',async()=>{
   const p=await Notification.requestPermission();
   toast(p==='granted'?'Браузерные уведомления включены 🔔':'Разрешение не выдано',p==='granted'?'':'warn');
 });
-function addLog(text){
-  state.log.unshift({t:Date.now(),text});
-  state.log=state.log.slice(0,12);saveLocal();renderLog();
-}
-function renderLog(){
-  const ul=$('#logList');
-  if(!state.log.length){ul.innerHTML='<li style="color:#7FA97F">Пока пусто 🌱</li>';return}
-  ul.innerHTML=state.log.map(l=>{
-    const d=new Date(l.t);
-    return `<li><time>${d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})} · ${d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})}</time>${esc(l.text)}</li>`;
-  }).join('');
-}
 
 /* ============ ТОСТЫ, ДЕКОР ============ */
 function toast(text,type){
