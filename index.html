@@ -882,7 +882,7 @@ const TIPS=[
 'Опрыскивание не заменяет полив — оно про влажность воздуха',
 'Напоминания приходят в 20:00 и 22:00 — удобно для всех'
 ];
-const EMOJI_SET=['🌱','🌿','🍀','','🌴','','🌺','','🌷','','🌻','','🍂','','🌾','','🍋','','🥑','','🌲','','🍇',''];
+const EMOJI_SET=['🌱','🌿','🍀','','🌴','','🌺','','🌷','','🌻','','🍂','','🌾','','','','🥑','','🌲','','🍇',''];
 
 /* ============ СОСТОЯНИЕ ============ */
 const DAY=86400000, LS='gf.data';
@@ -904,7 +904,7 @@ function tasks(m){
     {type:'repot',emoji:'🪴',label:'пересадить',due:m.nextRepot,anchor:m.lastRepot,iv:m.repot*30}
   ];
 }
-function mskDay(ts){const d=new Date(ts+3*3600e3);return Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())} const dl=t=>Math.round((mskDay(t.due)-mskDay(Date.now()))/DAY); function dueLab(t){const d=dl(t);const hh=new Date(t.due+3*3600e3).getUTCHours();if(d<0)return 'сегодня в '+hh+':00!';if(d===0)return 'сегодня в '+hh+':00';if(d===1)return 'завтра в '+hh+':00';return 'через '+d+' дн. в '+hh+':00'}
+function mskDay(ts){const d=new Date(ts+3*3600e3);return Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())} const dl=t=>Math.round((mskDay(t.due)-mskDay(Date.now()))/DAY); function dueLab(t){const d=dl(t);if(d<0)return 'сегодня!';if(d===0)return 'сегодня';if(d===1)return 'завтра';return 'через '+d+' дн.'}
 
 /* ============ КОНФИГ И SUPABASE ============ */
 let sb=null, SBUSER=null, CHAT_ID=null, waitingTg=false, tgPollTimer=null;
@@ -1413,7 +1413,7 @@ $('#catToggle').addEventListener('click',()=>{
 document.querySelectorAll('[data-opencat]').forEach(a=>a.addEventListener('click',()=>setTimeout(openCat,50)));
 
 /* ============ КОНСТРУКТОР КАРТОЧКИ ============ */
-$('#bEmj').innerHTML=EMOJI_SET.map(e=>`<button type="button" data-e="${e}">${e}</button>`).join('')+`<input id="bEmojiCustom" maxlength="4" placeholder="или">`;
+$('#bEmj').innerHTML=EMOJI_SET.filter(x=>x.trim()).map(e=>`<button type="button" data-e="${e}">${e}</button>`).join('')+`<input id="bEmojiCustom" maxlength="4" placeholder="или">`;
 let selEmoji='🌿';
 function setEmoji(e){selEmoji=e;document.querySelectorAll('#bEmj button[data-e]').forEach(b=>b.classList.toggle('sel',b.dataset.e===e))}
 $('#bEmj').addEventListener('click',e=>{const b=e.target.closest('button[data-e]');if(b){setEmoji(b.dataset.e);$('#bEmojiCustom').value=''}});
