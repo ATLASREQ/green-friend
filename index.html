@@ -133,7 +133,11 @@ h1{font-size:clamp(2.1rem,4.6vw,3.85rem);line-height:1.07;font-weight:900;margin
 .act:hover{border-color:var(--green);background:var(--lime-soft);transform:translateY(-2px)}
 .act:active{transform:scale(.93)}
 .act.main{background:var(--green);color:#fff;border-color:var(--green)}
-.act.main:hover{background:#166338}
+.act.main:hover{background:#166338}.ints{display:flex;align-items:center;gap:6px;font:700 12.5px 'Golos Text';color:var(--ink-soft);flex-wrap:wrap}
+.ints button{width:26px;height:26px;border-radius:8px;border:1.5px solid var(--line);background:#fff;cursor:pointer;font:800 14px 'Golos Text';color:var(--green);transition:.15s;line-height:1}
+.ints button:hover{border-color:var(--green);background:var(--lime-soft)}
+.ints .post{width:auto;padding:0 10px;height:26px;font:700 12px 'Golos Text';color:#186096;border-color:#BFDCF0}
+.ints .post:hover{background:#E3F0FA;border-color:#186096}
 .del{margin-left:auto;border:none;background:none;cursor:pointer;color:#9AB09C;font:700 12.5px 'Golos Text';transition:.2s;padding:6px}
 .del:hover{color:var(--alert)}
 .del.arm{color:var(--alert)}
@@ -870,7 +874,7 @@ const FEED_OVR={cyclamen:[10,3],lithops:[10,3],azalea:[2,9],phalaenopsis:[1,12],
 function seasonOf(sp){if(sp&&sp.feedFrom)return[sp.feedFrom,sp.feedTo];return FEED_OVR[sp?.id]||FEED_DEF}
 function inSeason(season,d){const mo=d.getMonth()+1,a=season[0],b=season[1];return a<=b?(mo>=a&&mo<=b):(mo>=a||mo<=b)}
 /* Следующее напоминание: сегодня + N дней, всегда в 17:00 UTC (20:00 МСК) */
-function nextAt(days){const d=new Date();d.setUTCDate(d.getUTCDate()+days);d.setUTCHours(17,0,0,0);return +d}
+function nextAt(days){const d=new Date();d.setUTCDate(d.getUTCDate()+days);d.setUTCHours(17,0,0,0);return +d}function nextFrom(anchor,days){const d=new Date(anchor);d.setUTCDate(d.getUTCDate()+days);d.setUTCHours(17,0,0,0);return +d}
 const TIPS=[
 'Большинство комнатных гибнет от перелива, а не от засухи',
 'Зимой почти все растения спят — подкормка в период покоя вредит',
@@ -1216,7 +1220,9 @@ function renderMine(){
         <span class="chip ${st}">${chipTxt}</span>
       </div>
       <div class="room-row">🚪 <input class="roominp" list="roomList" data-room="${i}" value="${esc(m.room)}" placeholder="выберите комнату"></div>
-      ${barHtml(ts[0])}${barHtml(ts[1])}
+      ${barHtml(ts[0])}
+      <div class="ints">💧 интервал: <button data-iw="-1" data-i="${i}" title="уменьшить интервал полива">−</button><span>раз в ${m.water} дн.</span><button data-iw="1" data-i="${i}" title="увеличить интервал полива">+</button><button class="post" data-post="${i}" title="сдвинуть ближайший полив на 1 день, без смены интервала">⏭ отложить на 1 дн.</button></div>
+      ${barHtml(ts[1])}
       <div class="repot-line">🪴 Пересадка: ${rd>0?'примерно через '+Math.max(1,Math.round(rd/30))+' мес.':'пора! грунт истощён'}</div>
       <div class="acts">
         <button class="act main" data-act="water" data-i="${i}">💧 Полить</button>
@@ -1253,7 +1259,23 @@ $('#mineGrid').addEventListener('change',e=>{
   toast(`Комната обновлена: ${m.room} 🚪`);
 });
 $('#mineGrid').addEventListener('click',async e=>{
-  const a=e.target.closest('[data-act]');
+    const iw=e.target.closest('[data-iw]');
+  if(iw){
+    const m=state.mine[+iw.dataset.i];
+    m.water=Math.min(90,Math.max(1,m.water+ +iw.dataset.iw));
+    m.nextWater=nextFrom(m.lastWater,m.water);
+    persistPlant(m);renderAll();
+    toast(`Интервал полива «${m.nickname||m.name}»: раз в ${m.water} дн. 💧`);
+    return;
+  }
+  const po=e.target.closest('[data-post]');
+  if(po){
+    const m=state.mine[+po.dataset.post];
+    m.nextWater=+m.nextWater+DAY;
+    persistPlant(m);renderAll();
+    toast(`Полив «${m.nickname||m.name}» отложен на 1 день ⏭`);
+    return;
+  }const a=e.target.closest('[data-act]');
   if(a){
     const m=state.mine[+a.dataset.i];
     const now=Date.now();
