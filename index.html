@@ -1006,6 +1006,63 @@ document.addEventListener('click',function(e){
   const a=e.target&&e.target.closest?e.target.closest('a[href*="t.me/"]'):null;
   if(a&&a.href&&a.href.includes('?start=')){e.preventDefault();e.stopPropagation();gfConnectTelegram();}
 },true);
+  /* ═══ v2 · Интервал: подсказка сезонного значения + сброс к дефолту ═══ */
+function gfDefaultWater(m){
+  if(typeof PLANTS!=='undefined'){
+    const sp=PLANTS.find(p=>p.id===m.sid);
+    if(sp)return sp.water;
+  }
+  const cu=(state.custom||[]).find(c=>c.id===m.sid||c.name===m.name);
+  if(cu)return cu.water;
+  return m.water;
+}
+function gfEnhanceIntervals(){
+  const grid=document.getElementById('mineGrid');
+  if(!grid||typeof gfWaterDays!=='function')return;
+  grid.querySelectorAll('[data-act="water"]').forEach(btn=>{
+    let card=btn;
+    while(card.parentElement&&card.parentElement.id!=='mineGrid')card=card.parentElement;
+    if(!card.parentElement||card.parentElement.id!=='mineGrid')return;
+    if(card.querySelector('.gf-reset'))return;
+    const m=state.mine[+btn.dataset.i];
+    if(!m)return;
+    let leaf=null;
+    card.querySelectorAll('*').forEach(el=>{
+      if(/раз в\s*\d+\s*дн/.test(el.textContent)){
+        if(!leaf||el.textContent.length<leaf.textContent.length)leaf=el;
+      }
+    });
+    if(!leaf)return;
+    const row=leaf.children.length===0?leaf.parentElement:leaf;
+    const eff=gfWaterDays(m,m.lastWater||Date.now());
+    const def=gfDefaultWater(m);
+    if(eff!==m.water){
+      const b=document.createElement('span');
+      b.className='gf-season';
+      b.textContent='❄️ '+eff+' дн.';
+      b.title='Сезонный интервал: базовый '+m.water+' дн. × зимний коэффициент';
+      b.style.cssText='font-size:12px;font-weight:700;color:#2b62a0;background:#e4eefb;border-radius:999px;padding:3px 9px;margin-left:6px;white-space:nowrap';
+      row.appendChild(b);
+    }
+    const r=document.createElement('button');
+    r.className='gf-reset';r.type='button';r.textContent='↺';
+    r.title='Сбросить интервал к дефолту: раз в '+def+' дн.';
+    r.style.cssText='margin-left:6px;width:28px;height:28px;border-radius:8px;border:1.5px solid #b9cf9a;background:#fff;color:#41603c;font-size:15px;cursor:pointer;line-height:1;vertical-align:middle';
+    r.addEventListener('click',ev=>{
+      ev.stopPropagation();
+      m.water=gfDefaultWater(m);
+      m.nextWater=gfNextWaterAt(m,m.lastWater||Date.now());
+      m.notified=m.notified||{};m.notified.water=0;
+      persistPlant(m);renderAll();
+      const e2=gfWaterDays(m,m.lastWater||Date.now());
+      toast('↺ Интервал сброшен: раз в '+m.water+' дн.'+(e2!==m.water?' (зимой '+e2+' дн.)':''));
+    });
+    row.appendChild(r);
+  });
+}
+const gfGridEl=document.getElementById('mineGrid');
+if(gfGridEl){new MutationObserver(()=>gfEnhanceIntervals()).observe(gfGridEl,{childList:true,subtree:true});}
+gfEnhanceIntervals();
 function renderAuthUI(){
   const btn=$('#authBtn'),mode=$('#modePill');
   if(SBUSER){
