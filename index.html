@@ -895,6 +895,30 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const defaults=()=>({mine:[],custom:[],roomFilter:'',deletedIds:[]});
 let state=(()=>{try{const s=JSON.parse(localStorage.getItem(LS));if(s&&s.mine)return Object.assign(defaults(),s)}catch(e){}return defaults()})();
 const saveLocal=()=>localStorage.setItem(LS,JSON.stringify(state));
+  /* ═══════════ v2 · СЕЗОННЫЙ ПОЛИВ ═══════════
+   Ноябрь–февраль — период покоя: полив реже (×1.6, суккуленты ×2.5).
+   Литопсы и цикламен — по своим правилам. Интервал считаем от даты полива. */
+const GF_WINTER=[11,12,1,2];
+const GF_DRY=new Set(['aloe','crassula','kalanchoe','echeveria','haworthia','echinocactus','euphorbia-milii','lithops','sansevieria','zamioculcas','yucca']);
+function gfWaterFactor(m,mo){
+  const succ=(m.tags&&m.tags.includes('succ'))||GF_DRY.has(m.sid);
+  if(m.sid==='lithops')return (GF_WINTER.includes(mo)||[6,7,8].includes(mo))?3:1;
+  if(m.sid==='cyclamen')return [6,7,8].includes(mo)?2:1;
+  if(GF_WINTER.includes(mo))return succ?2.5:1.6;
+  return 1;
+}
+function gfWaterDays(m,fromMs){
+  const probe=fromMs+m.water*DAY;
+  const mo=new Date(probe).getMonth()+1;
+  return Math.max(1,Math.round(m.water*gfWaterFactor(m,mo)));
+}
+function gfNextWaterAt(m,fromMs){
+  const d=new Date(fromMs+gfWaterDays(m,fromMs)*DAY);
+  d.setUTCHours(17,0,0,0); // 20:00 МСК — как в оригинале
+  return d.getTime();
+}
+// Приводим уже стоящие растения к сезонному интервалу (локально, до первого рендера).
+state.mine.forEach(m=>{if(m.lastWater)m.nextWater=gfNextWaterAt(m,m.lastWater);});
 const $=s=>document.querySelector(s);
 const P=id=>PLANTS.find(p=>p.id===id);
 const speciesOf=sid=>sid?.startsWith('cus:')?state.custom.find(c=>'cus:'+c.id===sid):P(sid);
@@ -961,6 +985,27 @@ function renderOwnerPanel(){
     ?'✅ Конфиг сохранён в этом браузере (режим теста). Для раздачи сайта впишите его в OWNER_CONFIG вверху файла.'
     :'Заполните три поля и сохраните — либо сразу впишите OWNER_CONFIG в начало файла.';
 }
+  /* ═══ v2 · Правка D: одноразовый код привязки Telegram ═══
+   Старую строку с ?start= искать и удалять НЕ нужно — блок перехватит её сам. */
+const gfOpen = window.open.bind(window);
+async function gfConnectTelegram(){
+  if(!sb||!SBUSER){toast('Сначала войдите в аккаунт ☁️','warn');return;}
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+  const rnd=crypto.getRandomValues(new Uint8Array(12));
+  let code='';for(const b of rnd)code+=chars[b%chars.length];
+  const {error}=await sb.from('tg_link_codes').insert({code,user_id:SBUSER.id,expires_at:new Date(Date.now()+10*60000).toISOString()});
+  if(error){toast('Не удалось создать код: '+error.message,'err');return;}
+  gfOpen('https://t.me/'+OWNER_CONFIG.botName+'?start='+code,'_blank');
+  toast('Нажмите Start в Telegram — код действует 10 минут ⏳');
+}
+window.open=function(url){
+  if(typeof url==='string'&&url.includes('t.me/')&&url.includes('?start=')){gfConnectTelegram();return null;}
+  return gfOpen.apply(null,arguments);
+};
+document.addEventListener('click',function(e){
+  const a=e.target&&e.target.closest?e.target.closest('a[href*="t.me/"]'):null;
+  if(a&&a.href&&a.href.includes('?start=')){e.preventDefault();e.stopPropagation();gfConnectTelegram();}
+},true);
 function renderAuthUI(){
   const btn=$('#authBtn'),mode=$('#modePill');
   if(SBUSER){
@@ -1279,13 +1324,13 @@ $('#mineGrid').addEventListener('click',async e=>{
   if(a){
     const m=state.mine[+a.dataset.i];
     const now=Date.now();
-    if(a.dataset.act==='water'){m.lastWater=now;m.nextWater=nextAt(m.water);m.notified.water=0}
+    if(a.dataset.act==='water'){m.lastWater=now;m.nextWater=gfNextWaterAt(m,now);m.notified.water=0}
     if(a.dataset.act==='feed'){m.lastFeed=now;m.nextFeed=nextAt(m.feed);m.notified.feed=0}
     if(a.dataset.act==='repot'){m.lastRepot=now;m.nextRepot=nextAt(m.repot*30);m.notified.repot=0}
     persistPlant(m);
     burst(a,a.dataset.act==='water'?'💧':a.dataset.act==='feed'?'✨':'🌱');
     const done={water:'полито 💧',feed:'подкормлено 🧪',repot:'пересажено 🪴'};
-    setTimeout(()=>{renderAll();toast(`${m.emoji} ${m.nickname||m.name}: ${done[a.dataset.act]}. Следующее напоминание — через ${a.dataset.act==='repot'?m.repot+' мес.':(a.dataset.act==='water'?m.water:m.feed)+' дн.'} в 20:00`)},260);
+    setTimeout(()=>{renderAll();toast(`${m.emoji} ${m.nickname||m.name}: ${done[a.dataset.act]}. Следующее напоминание — через ${a.dataset.act==='repot'?m.repot+' мес.':(a.dataset.act==='water'?Math.round((m.nextWater-m.lastWater)/DAY):m.feed)+' дн.'} в 20:00`)},260);
     return;
   }
   const d=e.target.closest('[data-del]');
