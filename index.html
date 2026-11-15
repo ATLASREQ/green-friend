@@ -1170,12 +1170,9 @@ gfEnhanceIntervals();
       lb.addEventListener('click',e=>{if(e.target===lb||e.target.closest('[data-lbclose]'))lb.classList.remove('open');});}
     lb.innerHTML='<div class="gf-lb-card"><div class="gf-lb-head"><span class="gf-lb-title"></span><button class="gf-lb-x" data-lbclose>✕</button></div>'
       +'<div class="gf-lb-imgwrap"><img class="gf-lb-img" alt=""></div>'
-      +'<div class="gf-lb-actions"><button class="gf-btn" data-lbzoom>🔍 Приблизить</button><button class="gf-btn ghost" data-lbchange>🔄 Заменить</button><button class="gf-btn ghost" data-lbdel>🗑 Удалить</button></div></div>';
+      +'<div class="gf-lb-actions"><button class="gf-btn ghost" data-lbchange>🔄 Заменить</button><button class="gf-btn ghost" data-lbdel>🗑 Удалить</button></div></div>';
     lb.querySelector('.gf-lb-title').textContent=m.nickname||m.name;
-    const img=lb.querySelector('.gf-lb-img');img.src=m.photo;
-    const wrap=lb.querySelector('.gf-lb-imgwrap');let zoomed=false;
-    const toggleZoom=()=>{zoomed=!zoomed;wrap.classList.toggle('zoom',zoomed);lb.querySelector('[data-lbzoom]').textContent=zoomed?'🔍 Отдалить':'🔍 Приблизить';};
-    lb.querySelector('[data-lbzoom]').onclick=toggleZoom;img.onclick=toggleZoom;
+    const img=lb.querySelector('.gf-lb-img');img.src=m.photo;img.style.cursor='default';
     lb.querySelector('[data-lbchange]').onclick=()=>gfPickPhoto(m);
     lb.querySelector('[data-lbdel]').onclick=()=>{gfRemovePhoto(m);lb.classList.remove('open');};
     lb.classList.add('open');
@@ -1196,7 +1193,6 @@ gfEnhanceIntervals();
       if(!avatar.querySelector('.gf-cambadge')){const cam=document.createElement('span');cam.className='gf-cambadge';cam.textContent=m.photo?'🔍':'';cam.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:13px;background:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:none';avatar.appendChild(cam);}
     });
   }
-
   /* ── Достижения / серия ── */
   function gfStreak(){const days=new Set(gfFun.log.map(l=>new Date(l.at).toDateString()));let d=new Date(),s=0;if(!days.has(d.toDateString())){d.setDate(d.getDate()-1);if(!days.has(d.toDateString()))return 0;}while(days.has(d.toDateString())){s++;d.setDate(d.getDate()-1);}return s;}
   const GF_BADGES=[
