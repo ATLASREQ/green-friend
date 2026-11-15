@@ -1190,7 +1190,7 @@ gfEnhanceIntervals();
       avatar.title=m.photo?'Открыть фото':'Добавить фото растения';
       avatar.addEventListener('click',ev=>{ev.stopPropagation();if(m.photo)gfOpenLightbox(m);else gfPickPhoto(m);});
       if(m.photo){[...avatar.childNodes].forEach(n=>{if(n.nodeType===3)n.remove();});avatar.style.backgroundImage='url('+m.photo+')';avatar.style.backgroundSize='cover';avatar.style.backgroundPosition='center';}
-      if(!avatar.querySelector('.gf-cambadge')){const cam=document.createElement('span');cam.className='gf-cambadge';cam.textContent=m.photo?'🔍':'';cam.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:13px;background:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:none';avatar.appendChild(cam);}
+      if(!avatar.querySelector('.gf-cambadge')){const cam=document.createElement('span');cam.className='gf-cambadge';cam.textContent=m.photo?'🔍':'📷';cam.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:13px;background:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:none';avatar.appendChild(cam);}
     });
   }
   /* ── Достижения / серия ── */
