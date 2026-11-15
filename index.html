@@ -1063,16 +1063,16 @@ function gfEnhanceIntervals(){
 const gfGridEl=document.getElementById('mineGrid');
 if(gfGridEl){new MutationObserver(()=>gfEnhanceIntervals()).observe(gfGridEl,{childList:true,subtree:true});}
 gfEnhanceIntervals();
-  /* ═══════════ GF FUN PACK · достижения, фото, полить всё, совет дня, звук, бэкап ═══════════ */
+/* ═══════════ GF FUN PACK v2 · облачные фото + лайтбокс, достижения, полить всё, совет дня, звук, бэкап ═══════════ */
 (function(){
   if(typeof state==='undefined'||typeof PLANTS==='undefined')return;
   const KEY='gf.fun';
   let gfFun=(()=>{try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return{}}})();
-  gfFun.log=gfFun.log||[];gfFun.badges=gfFun.badges||{};gfFun.photos=gfFun.photos||{};
+  gfFun.log=gfFun.log||[];gfFun.badges=gfFun.badges||{};
   if(gfFun.sound===undefined)gfFun.sound=true;
   const gfFunSave=()=>localStorage.setItem(KEY,JSON.stringify(gfFun));
   const gfPlural=(n,a,b,c)=>{const x=n%10,y=n%100;if(x===1&&y!==11)return a;if(x>=2&&x<=4&&(y<12||y>14))return b;return c;};
-  let gfOverlay=null,gfAC=null;
+  let gfOverlay=null,gfAC=null,gfCloudPhotos={},gfHooked=false;
 
   const GF_CSS=`
   .gf-fab{position:fixed;right:18px;bottom:18px;z-index:150;width:56px;height:56px;border-radius:50%;border:0;background:var(--grn,#2e7d43);color:#fff;font-size:24px;cursor:pointer;box-shadow:0 10px 26px rgba(21,42,28,.3);transition:.15s}
@@ -1103,15 +1103,102 @@ gfEnhanceIntervals();
   .gf-confetti{position:fixed;z-index:300;font-size:22px;pointer-events:none;animation:gffall 1.1s ease-out forwards}
   @keyframes gffall{to{transform:translateY(-90px) rotate(40deg);opacity:0}}
   .gf-panel::-webkit-scrollbar{width:10px}.gf-panel::-webkit-scrollbar-thumb{background:var(--grn,#2e7d43);border-radius:8px}.gf-panel::-webkit-scrollbar-track{background:#e7efd6}
+  .gf-lb{position:fixed;inset:0;background:rgba(10,20,13,.85);backdrop-filter:blur(6px);z-index:250;display:none;align-items:center;justify-content:center;padding:20px}
+  .gf-lb.open{display:flex}
+  .gf-lb-card{background:var(--card,#fff);border-radius:22px;max-width:760px;width:100%;max-height:92vh;display:flex;flex-direction:column;padding:18px;gap:12px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .gf-lb-head{display:flex;align-items:center;gap:10px}
+  .gf-lb-title{font-family:'Unbounded','Manrope',sans-serif;font-weight:700;font-size:18px;color:var(--ink,#152a1c)}
+  .gf-lb-x{margin-left:auto;border:0;background:#f4f8ea;width:36px;height:36px;border-radius:12px;font-size:16px;cursor:pointer;color:#6d7d66}
+  .gf-lb-imgwrap{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;background:#0e1f14;border-radius:16px;min-height:220px}
+  .gf-lb-img{max-width:100%;max-height:62vh;border-radius:12px;display:block;cursor:zoom-in}
+  .gf-lb-imgwrap.zoom{align-items:flex-start;justify-content:flex-start}
+  .gf-lb-imgwrap.zoom .gf-lb-img{max-width:none;max-height:none;cursor:zoom-out}
+  .gf-lb-imgwrap::-webkit-scrollbar{width:10px;height:10px}.gf-lb-imgwrap::-webkit-scrollbar-thumb{background:var(--grn,#2e7d43);border-radius:8px}.gf-lb-imgwrap::-webkit-scrollbar-track{background:#16281c}
+  .gf-lb-actions{display:flex;gap:10px;flex-wrap:wrap}
   `;
 
-  function gfStreak(){
-    const days=new Set(gfFun.log.map(l=>new Date(l.at).toDateString()));
-    let d=new Date(),streak=0;
-    if(!days.has(d.toDateString())){d.setDate(d.getDate()-1);if(!days.has(d.toDateString()))return 0;}
-    while(days.has(d.toDateString())){streak++;d.setDate(d.getDate()-1);}
-    return streak;
+  /* ── Облачные фото ── */
+  async function gfSyncPhotos(){
+    try{
+      if(typeof sb==='undefined'||!sb||typeof SBUSER==='undefined'||!SBUSER)return;
+      const {data,error}=await sb.from('plants').select('id,photo').eq('user_id',SBUSER.id);
+      if(error||!data)return;
+      const map={};data.forEach(r=>{map[r.id]=r.photo||null;});
+      for(const m of state.mine){ if(m.photo&&!map[m.id]){map[m.id]=m.photo;sb.from('plants').update({photo:m.photo}).eq('id',m.id).then(()=>{});} }
+      gfCloudPhotos=map;
+      state.mine.forEach(m=>{if(m.id in map)m.photo=map[m.id];});
+      saveLocal();renderAll();
+    }catch(e){}
   }
+  function gfTryHook(){
+    if(gfHooked)return;
+    try{ if(typeof sb!=='undefined'&&sb){ gfHooked=true;
+      sb.auth.onAuthStateChange((ev,ses)=>{if(ses&&ses.user)setTimeout(gfSyncPhotos,400);});
+      if(typeof SBUSER!=='undefined'&&SBUSER)gfSyncPhotos();
+    } }catch(e){}
+  }
+  function gfPickPhoto(m){
+    const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+    inp.onchange=()=>{const f=inp.files[0];if(!f)return;
+      if(f.size>15*1024*1024){toast('Файл слишком большой (до 15 МБ)','warn');return;}
+      const img=new Image();const url=URL.createObjectURL(f);
+      img.onload=async()=>{
+        const max=1000;let w=img.width,h=img.height;
+        if(w>max||h>max){if(w>h){h=h*max/w;w=max;}else{w=w*max/h;h=max;}}
+        const c=document.createElement('canvas');c.width=Math.round(w);c.height=Math.round(h);
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
+        const dataUrl=c.toDataURL('image/jpeg',0.8);
+        m.photo=dataUrl;gfCloudPhotos[m.id]=dataUrl;saveLocal();renderAll();gfCheckBadges(false);
+        if(typeof sb!=='undefined'&&sb&&typeof SBUSER!=='undefined'&&SBUSER){
+          const {error}=await sb.from('plants').update({photo:dataUrl}).eq('id',m.id);
+          toast(error?('Облако: '+error.message):'📸 Фото сохранено и синхронизировано',error?'err':'');
+        } else toast('📸 Фото добавлено локально. Войди в аккаунт — и оно появится на всех устройствах.');
+        const lb=document.getElementById('gfLightbox');if(lb&&lb.classList.contains('open'))gfOpenLightbox(m);
+      };
+      img.onerror=()=>{URL.revokeObjectURL(url);toast('Не удалось прочитать изображение','err');};
+      img.src=url;};
+    inp.click();
+  }
+  async function gfRemovePhoto(m){
+    m.photo=null;delete gfCloudPhotos[m.id];saveLocal();renderAll();
+    if(typeof sb!=='undefined'&&sb&&typeof SBUSER!=='undefined'&&SBUSER){const {error}=await sb.from('plants').update({photo:null}).eq('id',m.id);if(error)toast('Облако: '+error.message,'err');}
+    toast('Фото удалено');
+  }
+  function gfOpenLightbox(m){
+    let lb=document.getElementById('gfLightbox');
+    if(!lb){lb=document.createElement('div');lb.id='gfLightbox';lb.className='gf-lb';document.body.appendChild(lb);
+      lb.addEventListener('click',e=>{if(e.target===lb||e.target.closest('[data-lbclose]'))lb.classList.remove('open');});}
+    lb.innerHTML='<div class="gf-lb-card"><div class="gf-lb-head"><span class="gf-lb-title"></span><button class="gf-lb-x" data-lbclose>✕</button></div>'
+      +'<div class="gf-lb-imgwrap"><img class="gf-lb-img" alt=""></div>'
+      +'<div class="gf-lb-actions"><button class="gf-btn" data-lbzoom>🔍 Приблизить</button><button class="gf-btn ghost" data-lbchange>🔄 Заменить</button><button class="gf-btn ghost" data-lbdel>🗑 Удалить</button></div></div>';
+    lb.querySelector('.gf-lb-title').textContent=m.nickname||m.name;
+    const img=lb.querySelector('.gf-lb-img');img.src=m.photo;
+    const wrap=lb.querySelector('.gf-lb-imgwrap');let zoomed=false;
+    const toggleZoom=()=>{zoomed=!zoomed;wrap.classList.toggle('zoom',zoomed);lb.querySelector('[data-lbzoom]').textContent=zoomed?'🔍 Отдалить':'🔍 Приблизить';};
+    lb.querySelector('[data-lbzoom]').onclick=toggleZoom;img.onclick=toggleZoom;
+    lb.querySelector('[data-lbchange]').onclick=()=>gfPickPhoto(m);
+    lb.querySelector('[data-lbdel]').onclick=()=>{gfRemovePhoto(m);lb.classList.remove('open');};
+    lb.classList.add('open');
+  }
+  function gfEnhancePhotos(){
+    const grid=document.getElementById('mineGrid');if(!grid)return;
+    grid.querySelectorAll('[data-act="water"]').forEach(btn=>{
+      let card=btn;while(card.parentElement&&card.parentElement.id!=='mineGrid')card=card.parentElement;
+      if(!card.parentElement||card.parentElement.id!=='mineGrid')return;
+      const m=state.mine[+btn.dataset.i];if(!m||!m.emoji)return;
+      if(m.id in gfCloudPhotos)m.photo=gfCloudPhotos[m.id];
+      let avatar=null;card.querySelectorAll('*').forEach(el=>{if(!avatar&&el.children.length===0&&el.textContent.trim()===m.emoji)avatar=el;});
+      if(!avatar||avatar.dataset.gfPhoto)return;
+      avatar.dataset.gfPhoto='1';avatar.style.position='relative';avatar.style.cursor='pointer';
+      avatar.title=m.photo?'Открыть фото':'Добавить фото растения';
+      avatar.addEventListener('click',ev=>{ev.stopPropagation();if(m.photo)gfOpenLightbox(m);else gfPickPhoto(m);});
+      if(m.photo){[...avatar.childNodes].forEach(n=>{if(n.nodeType===3)n.remove();});avatar.style.backgroundImage='url('+m.photo+')';avatar.style.backgroundSize='cover';avatar.style.backgroundPosition='center';}
+      if(!avatar.querySelector('.gf-cambadge')){const cam=document.createElement('span');cam.className='gf-cambadge';cam.textContent=m.photo?'🔍':'';cam.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:13px;background:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:none';avatar.appendChild(cam);}
+    });
+  }
+
+  /* ── Достижения / серия ── */
+  function gfStreak(){const days=new Set(gfFun.log.map(l=>new Date(l.at).toDateString()));let d=new Date(),s=0;if(!days.has(d.toDateString())){d.setDate(d.getDate()-1);if(!days.has(d.toDateString()))return 0;}while(days.has(d.toDateString())){s++;d.setDate(d.getDate()-1);}return s;}
   const GF_BADGES=[
     {id:'first',icon:'🌱',name:'Первый росток',desc:'Добавь первое растение',test:()=>state.mine.length>=1},
     {id:'five',icon:'🪴',name:'Мини-джунгли',desc:'5 растений дома',test:()=>state.mine.length>=5},
@@ -1124,72 +1211,20 @@ gfEnhanceIntervals();
     {id:'collector',icon:'📚',name:'Коллекционер',desc:'5 разных видов',test:()=>new Set(state.mine.map(m=>m.sid)).size>=5},
     {id:'petsafe',icon:'🐾',name:'Друг питомцев',desc:'3 пет-френдли растения',test:()=>state.mine.filter(m=>!m.toxic).length>=3},
     {id:'succ',icon:'🌵',name:'Кактусовод',desc:'3 суккулента',test:()=>state.mine.filter(m=>{const sp=PLANTS.find(p=>p.id===m.sid);return sp&&(sp.tags||[]).includes('succ');}).length>=3},
-    {id:'photo',icon:'📸',name:'Фотограф',desc:'Добавь фото растения',test:()=>Object.keys(gfFun.photos).length>=1},
+    {id:'photo',icon:'📸',name:'Фотограф',desc:'Добавь фото растения',test:()=>state.mine.some(m=>m.photo)},
   ];
-  function gfCheckBadges(silent){
-    GF_BADGES.forEach(b=>{if(!gfFun.badges[b.id]&&b.test()){gfFun.badges[b.id]=Date.now();if(!silent){toast('🏆 Достижение: '+b.icon+' '+b.name+'!');gfConfetti();}}});
-    gfFunSave();
-  }
-  function gfConfetti(){
-    const em=['🎉','','✨','💧','🪴'];
-    for(let i=0;i<14;i++){const s=document.createElement('div');s.className='gf-confetti';s.textContent=em[i%em.length];s.style.left=(20+Math.random()*60)+'vw';s.style.top=(30+Math.random()*30)+'vh';s.style.animationDelay=(Math.random()*0.2)+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),1400);}
-  }
-  function gfDropSound(){
-    if(!gfFun.sound)return;
-    try{gfAC=gfAC||new (window.AudioContext||window.webkitAudioContext)();const o=gfAC.createOscillator(),g=gfAC.createGain();o.type='sine';o.frequency.setValueAtTime(880,gfAC.currentTime);o.frequency.exponentialRampToValueAtTime(220,gfAC.currentTime+0.18);g.gain.setValueAtTime(0.09,gfAC.currentTime);g.gain.exponentialRampToValueAtTime(0.001,gfAC.currentTime+0.2);o.connect(g);g.connect(gfAC.destination);o.start();o.stop(gfAC.currentTime+0.22);}catch(e){}
-  }
-  function gfWaterAll(){
-    const now=Date.now();const due=state.mine.filter(m=>m.nextWater<=now);
-    if(!due.length){toast('Все политы — молодец! 🌿');return;}
+  function gfCheckBadges(silent){GF_BADGES.forEach(b=>{if(!gfFun.badges[b.id]&&b.test()){gfFun.badges[b.id]=Date.now();if(!silent){toast('🏆 Достижение: '+b.icon+' '+b.name+'!');gfConfetti();}}});gfFunSave();}
+  function gfConfetti(){const em=['🎉','','✨','💧','🪴'];for(let i=0;i<14;i++){const s=document.createElement('div');s.className='gf-confetti';s.textContent=em[i%em.length];s.style.left=(20+Math.random()*60)+'vw';s.style.top=(30+Math.random()*30)+'vh';s.style.animationDelay=(Math.random()*0.2)+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),1400);}}
+  function gfDropSound(){if(!gfFun.sound)return;try{gfAC=gfAC||new (window.AudioContext||window.webkitAudioContext)();const o=gfAC.createOscillator(),g=gfAC.createGain();o.type='sine';o.frequency.setValueAtTime(880,gfAC.currentTime);o.frequency.exponentialRampToValueAtTime(220,gfAC.currentTime+0.18);g.gain.setValueAtTime(0.09,gfAC.currentTime);g.gain.exponentialRampToValueAtTime(0.001,gfAC.currentTime+0.2);o.connect(g);g.connect(gfAC.destination);o.start();o.stop(gfAC.currentTime+0.22);}catch(e){}}
+
+  /* ── Полить всё / совет дня / панель / бэкап ── */
+  function gfWaterAll(){const now=Date.now();const due=state.mine.filter(m=>m.nextWater<=now);if(!due.length){toast('Все политы — молодец! 🌿');return;}
     due.forEach(m=>{m.lastWater=now;m.nextWater=(typeof gfNextWaterAt==='function')?gfNextWaterAt(m,now):now+m.water*DAY;m.notified=m.notified||{};m.notified.water=0;persistPlant(m);gfFun.log.push({k:'water',at:now,id:m.id,n:m.nickname||m.name});});
-    gfFunSave();renderAll();gfCheckBadges(false);gfDropSound();gfConfetti();gfUpdateWaterAll();
-    toast('💧 Полито '+due.length+' '+gfPlural(due.length,'растение','растения','растений')+'!');
-  }
-  function gfUpdateWaterAll(){
-    const el=document.getElementById('gfWaterAll');if(!el)return;
-    const due=state.mine.filter(m=>m.nextWater<=Date.now()).length;
-    if(due>0){el.classList.add('show');el.textContent='💧 Полить всё · '+due;}else el.classList.remove('show');
-  }
-  function gfPickPhoto(m){
-    const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
-    inp.onchange=()=>{const f=inp.files[0];if(!f)return;const img=new Image();const url=URL.createObjectURL(f);
-      img.onload=()=>{const max=240;let w=img.width,h=img.height;if(w>h){if(w>max){h=h*max/w;w=max;}}else{if(h>max){w=w*max/h;h=max;}}
-        const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);
-        gfFun.photos[m.id]=c.toDataURL('image/jpeg',0.82);gfFunSave();gfCheckBadges(false);renderAll();toast('📸 Фото добавлено!');};
-      img.src=url;};
-    inp.click();
-  }
-  function gfEnhancePhotos(){
-    const grid=document.getElementById('mineGrid');if(!grid)return;
-    grid.querySelectorAll('[data-act="water"]').forEach(btn=>{
-      let card=btn;while(card.parentElement&&card.parentElement.id!=='mineGrid')card=card.parentElement;
-      if(!card.parentElement||card.parentElement.id!=='mineGrid')return;
-      const m=state.mine[+btn.dataset.i];if(!m||!m.emoji)return;
-      let avatar=null;card.querySelectorAll('*').forEach(el=>{if(!avatar&&el.children.length===0&&el.textContent.trim()===m.emoji)avatar=el;});
-      if(!avatar||avatar.dataset.gfPhoto)return;
-      avatar.dataset.gfPhoto='1';avatar.style.position='relative';avatar.style.cursor='pointer';avatar.title='Нажми, чтобы добавить фото растения';
-      avatar.addEventListener('click',ev=>{ev.stopPropagation();gfPickPhoto(m);});
-      const photo=gfFun.photos[m.id];
-      if(photo){[...avatar.childNodes].forEach(n=>{if(n.nodeType===3)n.remove();});avatar.style.backgroundImage='url('+photo+')';avatar.style.backgroundSize='cover';avatar.style.backgroundPosition='center';}
-      if(!avatar.querySelector('.gf-cambadge')){const cam=document.createElement('span');cam.className='gf-cambadge';cam.textContent='📷';cam.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:13px;background:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:none';avatar.appendChild(cam);}
-      if(photo&&!avatar.querySelector('.gf-photodel')){const del=document.createElement('span');del.className='gf-photodel';del.textContent='✕';del.style.cssText='position:absolute;right:-5px;top:-5px;font-size:12px;background:#df5a4b;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25)';del.addEventListener('click',ev=>{ev.stopPropagation();delete gfFun.photos[m.id];gfFunSave();renderAll();toast('Фото удалено');});avatar.appendChild(del);}
-    });
-  }
+    gfFunSave();renderAll();gfCheckBadges(false);gfDropSound();gfConfetti();gfUpdateWaterAll();toast('💧 Полито '+due.length+' '+gfPlural(due.length,'растение','растения','растений')+'!');}
+  function gfUpdateWaterAll(){const el=document.getElementById('gfWaterAll');if(!el)return;const due=state.mine.filter(m=>m.nextWater<=Date.now()).length;if(due>0){el.classList.add('show');el.textContent='💧 Полить всё · '+due;}else el.classList.remove('show');}
   const GF_TIPS=['Большинство комнатных гибнет от перелива, а не от засухи.','Зимой полив реже: растения спят и пьют меньше.','Проверь грунт пальцем: просох на 2–3 см — пора поливать.','Отстоянная вода комнатной температуры — лучший выбор.','Дренажные отверстия обязательны: корни не должны стоять в воде.','Жёлтые нижние листья — часто норма, а не болезнь.','Опрыскивание не заменяет полив — оно про влажность воздуха.','Подкормка работает только в сезон роста (обычно март–октябрь).','Не переставляй фикусы без нужды — они сбрасывают листья от стресса.','Суккуленты лучше забыть полить, чем полить дважды.','Протирай листья от пыли — им легче дышать и ловить свет.','Пересаживай весной: так растение быстрее освоит новый грунт.'];
-  function gfTipBar(){
-    const grid=document.getElementById('mineGrid');if(!grid||document.getElementById('gfTipBar'))return;
-    const today=new Date().toDateString();if(gfFun.tipDismissed===today)return;
-    const tips=GF_TIPS.concat(PLANTS.map(p=>p.tip).filter(Boolean));
-    const tip=tips[Math.floor(Date.now()/DAY)%tips.length];
-    const bar=document.createElement('div');bar.className='gf-tipbar';bar.id='gfTipBar';
-    bar.innerHTML='<span>🌱</span><span class="gf-tiptext"><b>Совет дня:</b> </span><button class="gf-tipx">✕</button>';
-    bar.querySelector('.gf-tiptext').appendChild(document.createTextNode(tip));
-    bar.querySelector('.gf-tipx').onclick=()=>{gfFun.tipDismissed=today;gfFunSave();bar.remove();};
-    grid.parentElement.insertBefore(bar,grid);
-  }
-  function gfRenderPanel(){
-    const body=document.getElementById('gfPanelBody');if(!body)return;
-    const unlocked=Object.keys(gfFun.badges).length,waters=gfFun.log.filter(l=>l.k==='water').length,streak=gfStreak(),species=new Set(state.mine.map(m=>m.sid)).size;
+  function gfTipBar(){const grid=document.getElementById('mineGrid');if(!grid||document.getElementById('gfTipBar'))return;const today=new Date().toDateString();if(gfFun.tipDismissed===today)return;const tips=GF_TIPS.concat(PLANTS.map(p=>p.tip).filter(Boolean));const tip=tips[Math.floor(Date.now()/DAY)%tips.length];const bar=document.createElement('div');bar.className='gf-tipbar';bar.id='gfTipBar';bar.innerHTML='<span>🌱</span><span class="gf-tiptext"><b>Совет дня:</b> </span><button class="gf-tipx">✕</button>';bar.querySelector('.gf-tiptext').appendChild(document.createTextNode(tip));bar.querySelector('.gf-tipx').onclick=()=>{gfFun.tipDismissed=today;gfFunSave();bar.remove();};grid.parentElement.insertBefore(bar,grid);}
+  function gfRenderPanel(){const body=document.getElementById('gfPanelBody');if(!body)return;const unlocked=Object.keys(gfFun.badges).length,waters=gfFun.log.filter(l=>l.k==='water').length,streak=gfStreak(),species=new Set(state.mine.map(m=>m.sid)).size;
     const badgesHtml=GF_BADGES.map(b=>'<div class="gf-badge '+(gfFun.badges[b.id]?'on':'off')+'"><div class="bi">'+b.icon+'</div><div class="bn">'+b.name+'</div><div class="bd">'+b.desc+'</div></div>').join('');
     body.innerHTML='<h3>🎮 Фишки Green Friend</h3><div class="gf-sub">Достижения, серия заботы и пара удобных кнопок.</div>'
       +'<div class="gf-statsrow"><div class="gf-stat"><b>'+state.mine.length+'</b><span>растений</span></div><div class="gf-stat"><b>'+species+'</b><span>видов</span></div><div class="gf-stat"><b>'+waters+'</b><span>поливов</span></div><div class="gf-stat"><b>🔥 '+streak+'</b><span>дней подряд</span></div></div>'
@@ -1198,50 +1233,27 @@ gfEnhanceIntervals();
       +'<div class="gf-actions"><button class="gf-btn ghost" id="gfExportBtn">📤 Скачать бэкап</button><button class="gf-btn ghost" id="gfImportBtn">📥 Загрузить бэкап</button></div>';
     document.getElementById('gfWaterAllBtn').onclick=()=>{gfWaterAll();gfRenderPanel();};
     document.getElementById('gfSoundBtn').onclick=()=>{gfFun.sound=!gfFun.sound;gfFunSave();gfRenderPanel();};
-    document.getElementById('gfExportBtn').onclick=gfExport;
-    document.getElementById('gfImportBtn').onclick=gfImport;
-  }
+    document.getElementById('gfExportBtn').onclick=gfExport;document.getElementById('gfImportBtn').onclick=gfImport;}
   function gfOpenPanel(){gfRenderPanel();gfOverlay.classList.add('open');}
-  function gfExport(){
-    const data={app:'green-friend',exportedAt:new Date().toISOString(),state,gfFun};
-    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='green-friend-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('📤 Бэкап скачан');
-  }
-  function gfImport(){
-    const inp=document.createElement('input');inp.type='file';inp.accept='application/json';
-    inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
-      r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.state||!d.state.mine)throw new Error('bad');
-        if(!confirm('Заменить текущую коллекцию данными из бэкапа?'))return;
-        state.mine=d.state.mine;state.custom=d.state.custom||[];
-        if(d.gfFun){gfFun=d.gfFun;gfFun.log=gfFun.log||[];gfFun.badges=gfFun.badges||{};gfFun.photos=gfFun.photos||{};}
-        saveLocal();gfFunSave();renderAll();gfRenderPanel();toast('📥 Бэкап загружен');
-      }catch(e){toast('Не удалось прочитать бэкап','err');}};
-      r.readAsText(f);};
-    inp.click();
-  }
-  function gfCareLogger(e){
-    const a=e.target.closest('[data-act]');if(!a)return;
-    const m=state.mine[+a.dataset.i];if(!m)return;
-    gfFun.log.push({k:a.dataset.act,at:Date.now(),id:m.id,n:m.nickname||m.name});
-    if(gfFun.log.length>2000)gfFun.log=gfFun.log.slice(-2000);
-    gfFunSave();if(a.dataset.act==='water')gfDropSound();gfCheckBadges(false);gfUpdateWaterAll();
-    if(gfOverlay&&gfOverlay.classList.contains('open'))gfRenderPanel();
-  }
+  function gfExport(){const data={app:'green-friend',exportedAt:new Date().toISOString(),state,gfFun};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='green-friend-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('📤 Бэкап скачан');}
+  function gfImport(){const inp=document.createElement('input');inp.type='file';inp.accept='application/json';inp.onchange=()=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.state||!d.state.mine)throw new Error('bad');if(!confirm('Заменить текущую коллекцию данными из бэкапа?'))return;state.mine=d.state.mine;state.custom=d.state.custom||[];if(d.gfFun){gfFun=d.gfFun;gfFun.log=gfFun.log||[];gfFun.badges=gfFun.badges||{};}saveLocal();gfFunSave();renderAll();gfRenderPanel();toast('📥 Бэкап загружен');}catch(e){toast('Не удалось прочитать бэкап','err');}};r.readAsText(f);};inp.click();}
+  function gfCareLogger(e){const a=e.target.closest('[data-act]');if(!a)return;const m=state.mine[+a.dataset.i];if(!m)return;gfFun.log.push({k:a.dataset.act,at:Date.now(),id:m.id,n:m.nickname||m.name});if(gfFun.log.length>2000)gfFun.log=gfFun.log.slice(-2000);gfFunSave();if(a.dataset.act==='water')gfDropSound();gfCheckBadges(false);gfUpdateWaterAll();if(gfOverlay&&gfOverlay.classList.contains('open'))gfRenderPanel();}
 
-  // init
+  /* ── init ── */
   const st=document.createElement('style');st.textContent=GF_CSS;document.head.appendChild(st);
   const fab=document.createElement('button');fab.className='gf-fab';fab.textContent='🎮';fab.title='Фишки Green Friend';fab.onclick=gfOpenPanel;document.body.appendChild(fab);
   const wa=document.createElement('button');wa.className='gf-waterall';wa.id='gfWaterAll';wa.onclick=gfWaterAll;document.body.appendChild(wa);
-  gfOverlay=document.createElement('div');gfOverlay.className='gf-overlay';
-  gfOverlay.innerHTML='<div class="gf-panel"><button class="gf-close">✕</button><div id="gfPanelBody"></div></div>';
-  document.body.appendChild(gfOverlay);
+  gfOverlay=document.createElement('div');gfOverlay.className='gf-overlay';gfOverlay.innerHTML='<div class="gf-panel"><button class="gf-close">✕</button><div id="gfPanelBody"></div></div>';document.body.appendChild(gfOverlay);
   gfOverlay.addEventListener('click',e=>{if(e.target===gfOverlay||e.target.closest('.gf-close'))gfOverlay.classList.remove('open');});
+  if(gfFun.photos){state.mine.forEach(m=>{if(!m.photo&&gfFun.photos[m.id])m.photo=gfFun.photos[m.id];});gfFun.photos={};gfFunSave();saveLocal();}
   gfCheckBadges(true);gfTipBar();
   const grid=document.getElementById('mineGrid');
   if(grid){new MutationObserver(()=>{gfEnhancePhotos();gfUpdateWaterAll();}).observe(grid,{childList:true,subtree:true});}
   gfEnhancePhotos();gfUpdateWaterAll();setInterval(gfUpdateWaterAll,20000);
+  setInterval(gfTryHook,600);gfTryHook();
   document.addEventListener('click',gfCareLogger,true);
 })();
+/* ═══ END GF FUN PACK ═══ */
 function renderAuthUI(){
   const btn=$('#authBtn'),mode=$('#modePill');
   if(SBUSER){
