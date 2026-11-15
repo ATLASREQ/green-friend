@@ -1250,6 +1250,21 @@ gfEnhanceIntervals();
   document.addEventListener('click',gfCareLogger,true);
 })();
 /* ═══ END GF FUN PACK ═══ */
+/* ═══ GF PHOTO CLOUD-ONLY: фото не попадают в localStorage ═══ */
+(function(){
+  const GF_LS_KEY='gf.data';
+  const origSet=Storage.prototype.setItem;
+  Storage.prototype.setItem=function(k,v){
+    if(k===GF_LS_KEY&&typeof v==='string'&&v.indexOf('"photo":"data:')!==-1){
+      try{
+        const o=JSON.parse(v);
+        (o.mine||[]).forEach(m=>{delete m.photo;});
+        v=JSON.stringify(o);
+      }catch(e){}
+    }
+    return origSet.call(this,k,v);
+  };
+})();  
 function renderAuthUI(){
   const btn=$('#authBtn'),mode=$('#modePill');
   if(SBUSER){
