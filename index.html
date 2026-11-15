@@ -1117,17 +1117,28 @@ gfEnhanceIntervals();
   .gf-lb-actions{display:flex;gap:10px;flex-wrap:wrap}
   `;
 
-  /* ── Облачные фото ── */
+  /* ── Облачные фото (БЕЗ браузерного кэша) ── */
+  function gfPurgeLocalPhotos(){
+    let changed=false;
+    state.mine.forEach(m=>{
+      if(m.photo){
+        if(!gfCloudPhotos[m.id]) gfCloudPhotos[m.id]=m.photo;
+        delete m.photo;
+        changed=true;
+      }
+    });
+    if(changed) saveLocal();
+  }
   async function gfSyncPhotos(){
     try{
       if(typeof sb==='undefined'||!sb||typeof SBUSER==='undefined'||!SBUSER)return;
       const {data,error}=await sb.from('plants').select('id,photo').eq('user_id',SBUSER.id);
       if(error||!data)return;
       const map={};data.forEach(r=>{map[r.id]=r.photo||null;});
-      for(const m of state.mine){ if(m.photo&&!map[m.id]){map[m.id]=m.photo;sb.from('plants').update({photo:m.photo}).eq('id',m.id).then(()=>{});} }
+      for(const id in gfCloudPhotos){ if(gfCloudPhotos[id]&&!map[id]){ map[id]=gfCloudPhotos[id]; sb.from('plants').update({photo:gfCloudPhotos[id]}).eq('id',id).then(()=>{}); } }
       gfCloudPhotos=map;
-      state.mine.forEach(m=>{if(m.id in map)m.photo=map[m.id];});
-      saveLocal();renderAll();
+      gfPurgeLocalPhotos();
+      renderAll();
     }catch(e){}
   }
   function gfTryHook(){
@@ -1148,11 +1159,11 @@ gfEnhanceIntervals();
         const c=document.createElement('canvas');c.width=Math.round(w);c.height=Math.round(h);
         c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(url);
         const dataUrl=c.toDataURL('image/jpeg',0.8);
-        m.photo=dataUrl;gfCloudPhotos[m.id]=dataUrl;saveLocal();renderAll();gfCheckBadges(false);
+        gfCloudPhotos[m.id]=dataUrl;renderAll();gfCheckBadges(false);
         if(typeof sb!=='undefined'&&sb&&typeof SBUSER!=='undefined'&&SBUSER){
           const {error}=await sb.from('plants').update({photo:dataUrl}).eq('id',m.id);
-          toast(error?('Облако: '+error.message):'📸 Фото сохранено и синхронизировано',error?'err':'');
-        } else toast('📸 Фото добавлено локально. Войди в аккаунт — и оно появится на всех устройствах.');
+          toast(error?('Облако: '+error.message):'📸 Фото сохранено в облаке',error?'err':'');
+        } else toast('📸 Фото добавлено. Войди в аккаунт, чтобы оно сохранилось навсегда.');
         const lb=document.getElementById('gfLightbox');if(lb&&lb.classList.contains('open'))gfOpenLightbox(m);
       };
       img.onerror=()=>{URL.revokeObjectURL(url);toast('Не удалось прочитать изображение','err');};
@@ -1160,11 +1171,12 @@ gfEnhanceIntervals();
     inp.click();
   }
   async function gfRemovePhoto(m){
-    m.photo=null;delete gfCloudPhotos[m.id];saveLocal();renderAll();
+    delete gfCloudPhotos[m.id];renderAll();
     if(typeof sb!=='undefined'&&sb&&typeof SBUSER!=='undefined'&&SBUSER){const {error}=await sb.from('plants').update({photo:null}).eq('id',m.id);if(error)toast('Облако: '+error.message,'err');}
     toast('Фото удалено');
   }
   function gfOpenLightbox(m){
+    const photo=gfCloudPhotos[m.id];if(!photo)return;
     let lb=document.getElementById('gfLightbox');
     if(!lb){lb=document.createElement('div');lb.id='gfLightbox';lb.className='gf-lb';document.body.appendChild(lb);
       lb.addEventListener('click',e=>{if(e.target===lb||e.target.closest('[data-lbclose]'))lb.classList.remove('open');});}
@@ -1172,25 +1184,26 @@ gfEnhanceIntervals();
       +'<div class="gf-lb-imgwrap"><img class="gf-lb-img" alt=""></div>'
       +'<div class="gf-lb-actions"><button class="gf-btn ghost" data-lbchange>🔄 Заменить</button><button class="gf-btn ghost" data-lbdel>🗑 Удалить</button></div></div>';
     lb.querySelector('.gf-lb-title').textContent=m.nickname||m.name;
-    const img=lb.querySelector('.gf-lb-img');img.src=m.photo;img.style.cursor='default';
+    const img=lb.querySelector('.gf-lb-img');img.src=photo;img.style.cursor='default';
     lb.querySelector('[data-lbchange]').onclick=()=>gfPickPhoto(m);
     lb.querySelector('[data-lbdel]').onclick=()=>{gfRemovePhoto(m);lb.classList.remove('open');};
     lb.classList.add('open');
   }
   function gfEnhancePhotos(){
+    gfPurgeLocalPhotos();
     const grid=document.getElementById('mineGrid');if(!grid)return;
     grid.querySelectorAll('[data-act="water"]').forEach(btn=>{
       let card=btn;while(card.parentElement&&card.parentElement.id!=='mineGrid')card=card.parentElement;
       if(!card.parentElement||card.parentElement.id!=='mineGrid')return;
       const m=state.mine[+btn.dataset.i];if(!m||!m.emoji)return;
-      if(m.id in gfCloudPhotos)m.photo=gfCloudPhotos[m.id];
+      const photo=gfCloudPhotos[m.id]||null;
       let avatar=null;card.querySelectorAll('*').forEach(el=>{if(!avatar&&el.children.length===0&&el.textContent.trim()===m.emoji)avatar=el;});
       if(!avatar||avatar.dataset.gfPhoto)return;
       avatar.dataset.gfPhoto='1';avatar.style.position='relative';avatar.style.cursor='pointer';
-      avatar.title=m.photo?'Открыть фото':'Добавить фото растения';
-      avatar.addEventListener('click',ev=>{ev.stopPropagation();if(m.photo)gfOpenLightbox(m);else gfPickPhoto(m);});
-      if(m.photo){[...avatar.childNodes].forEach(n=>{if(n.nodeType===3)n.remove();});avatar.style.backgroundImage='url('+m.photo+')';avatar.style.backgroundSize='cover';avatar.style.backgroundPosition='center';}
-      if(!avatar.querySelector('.gf-cambadge')){const cam=document.createElement('span');cam.className='gf-cambadge';cam.textContent=m.photo?'🔍':'📷';cam.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:13px;background:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:none';avatar.appendChild(cam);}
+      avatar.title=photo?'Открыть фото':'Добавить фото растения';
+      avatar.addEventListener('click',ev=>{ev.stopPropagation();if(photo)gfOpenLightbox(m);else gfPickPhoto(m);});
+      if(photo){[...avatar.childNodes].forEach(n=>{if(n.nodeType===3)n.remove();});avatar.style.backgroundImage='url('+photo+')';avatar.style.backgroundSize='cover';avatar.style.backgroundPosition='center';}
+      if(!avatar.querySelector('.gf-cambadge')){const cam=document.createElement('span');cam.className='gf-cambadge';cam.textContent=photo?'🔍':'📷';cam.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:13px;background:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:none';avatar.appendChild(cam);}
     });
   }
   /* ── Достижения / серия ── */
@@ -1207,7 +1220,7 @@ gfEnhanceIntervals();
     {id:'collector',icon:'📚',name:'Коллекционер',desc:'5 разных видов',test:()=>new Set(state.mine.map(m=>m.sid)).size>=5},
     {id:'petsafe',icon:'🐾',name:'Друг питомцев',desc:'3 пет-френдли растения',test:()=>state.mine.filter(m=>!m.toxic).length>=3},
     {id:'succ',icon:'🌵',name:'Кактусовод',desc:'3 суккулента',test:()=>state.mine.filter(m=>{const sp=PLANTS.find(p=>p.id===m.sid);return sp&&(sp.tags||[]).includes('succ');}).length>=3},
-    {id:'photo',icon:'📸',name:'Фотограф',desc:'Добавь фото растения',test:()=>state.mine.some(m=>m.photo)},
+    {id:'photo',icon:'📸',name:'Фотограф',desc:'Добавь фото растения',EQCLfvbkTrdUJ1wfyNI9uOdcK30z1wbWWX060mrXBNwp2Tse},
   ];
   function gfCheckBadges(silent){GF_BADGES.forEach(b=>{if(!gfFun.badges[b.id]&&b.test()){gfFun.badges[b.id]=Date.now();if(!silent){toast('🏆 Достижение: '+b.icon+' '+b.name+'!');gfConfetti();}}});gfFunSave();}
   function gfConfetti(){const em=['🎉','','✨','💧','🪴'];for(let i=0;i<14;i++){const s=document.createElement('div');s.className='gf-confetti';s.textContent=em[i%em.length];s.style.left=(20+Math.random()*60)+'vw';s.style.top=(30+Math.random()*30)+'vh';s.style.animationDelay=(Math.random()*0.2)+'s';document.body.appendChild(s);setTimeout(()=>s.remove(),1400);}}
